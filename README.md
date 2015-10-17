@@ -1,6 +1,6 @@
 # Xlsxtream
 
-Xlsxtream is a streaming writer for XLSX spreadsheets. It supports multiple worksheets and optional string deduplication via a shared string table (SST). Its purpose is to replace CSV for large exports, because using CSV in Excel is very buggy and error prone. It's very efficient and can write millions of rows in seconds with low memory usage.
+Xlsxtream is a streaming writer for XLSX spreadsheets. It supports multiple worksheets and optional string deduplication via a shared string table (SST). Its purpose is to replace CSV for large exports, because using CSV in Excel is very buggy and error prone. It's very efficient and can quickly write millions of rows with low memory usage.
 
 Xlsxtream does not support formatting, charts, comments and a myriad of other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features. If you are looking for a fully featured solution take a look at [axslx](https://github.com/randym/axlsx).
 
@@ -25,6 +25,7 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
+# Creates a new workbook and closes it at the end of the block.
 XLSXtream::Workbook.open("foo.xlsx") do |xlsx|
   xlsx.write_sheet "Sheet1" do |sheet|
     # Date, Time, DateTime, Fixnum & Float are properly mapped
@@ -39,12 +40,24 @@ xlsx.write_sheet "Sheet1" do |sheet|
   sheet << %[first row]
   sheet << %[second row with more colums]
 end
+# Write multiple worksheets with custom names:
 xlsx.write_sheet "Foo & Bar" do |sheet|
   sheet.add_row ["Timestamp", "Comment"]
   sheet.add_row [Time.now, "Foo"]
   sheet.add_row [Time.now, "Bar"]
 end
-xlsx.close # writes metadata and zip central directory
+# If you have highly repetitive data, you can enable Shared
+# String Tables (SST) for the workbook or a single worksheet.
+# The SST has to be kept in memory, so don't use it if you
+# have a huge amount of rows or a little duplication of content
+# accros cells. A single SST is used across the whole workbook.
+xlsx.write_sheet("SST", use_shared_strings: true) do |sheet|
+  sheet << %(the same old story)
+  sheet << %(the old same story)
+  sheet << %(old, the same story)
+end
+# Writes metadata and ZIP archive central directory.
+xlsx.close
 ```
 
 ## Development
