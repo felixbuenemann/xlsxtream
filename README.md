@@ -37,8 +37,8 @@ io = StringIO.new('')
 xlsx = Xlsxtream::Workbook.new(io)
 xlsx.write_worksheet "Sheet1" do |sheet|
   # Number of columns doesn't have to match
-  sheet << %[first row]
-  sheet << %[second row with more colums]
+  sheet << %w[first row]
+  sheet << %w[second row with more colums]
 end
 # Write multiple worksheets with custom names:
 xlsx.write_worksheet "Foo & Bar" do |sheet|
@@ -52,9 +52,9 @@ end
 # have a huge amount of rows or a little duplication of content
 # accros cells. A single SST is used across the whole workbook.
 xlsx.write_worksheet("SST", use_shared_strings: true) do |sheet|
-  sheet << %(the same old story)
-  sheet << %(the old same story)
-  sheet << %(old, the same story)
+  sheet << %w[the same old story]
+  sheet << %w[the old same story]
+  sheet << %w[old, the same story]
 end
 # Writes metadata and ZIP archive central directory.
 xlsx.close
