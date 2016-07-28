@@ -26,7 +26,7 @@ Or install it yourself as:
 
 ```ruby
 # Creates a new workbook and closes it at the end of the block.
-XLSXtream::Workbook.open("foo.xlsx") do |xlsx|
+Xlsxtream::Workbook.open("foo.xlsx") do |xlsx|
   xlsx.write_sheet "Sheet1" do |sheet|
     # Date, Time, DateTime, Fixnum & Float are properly mapped
     sheet << [Date.today, "hello", "world", 42, 3.14159265359]
@@ -34,7 +34,7 @@ XLSXtream::Workbook.open("foo.xlsx") do |xlsx|
 end
 
 io = StringIO.new('')
-xlsx = XLSXtream::Workbook.new(io)
+xlsx = Xlsxtream::Workbook.new(io)
 xlsx.write_sheet "Sheet1" do |sheet|
   # Number of columns doesn't have to match
   sheet << %[first row]
