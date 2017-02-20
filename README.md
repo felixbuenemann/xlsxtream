@@ -28,8 +28,8 @@ Or install it yourself as:
 # Creates a new workbook and closes it at the end of the block.
 Xlsxtream::Workbook.open("foo.xlsx") do |xlsx|
   xlsx.write_worksheet "Sheet1" do |sheet|
-    # Date, Time, DateTime, Fixnum & Float are properly mapped
-    sheet << [Date.today, "hello", "world", 42, 3.14159265359]
+    # Date, Time, DateTime and Numeric are properly mapped
+    sheet << [Date.today, "hello", "world", 42, 3.14159265359, 42**13]
   end
 end
 
