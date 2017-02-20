@@ -18,7 +18,9 @@ module Xlsxtream
       end
 
       def close
-        @zos.close
+        os = @zos.close_buffer
+        os.flush if os.respond_to? :flush
+        os.close if os.respond_to? :close
       end
 
       # Extend get_compressor to hook our custom deflater.
