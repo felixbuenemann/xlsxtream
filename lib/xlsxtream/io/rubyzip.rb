@@ -5,6 +5,7 @@ module Xlsxtream
     class RubyZip
       def initialize(path_or_io)
         stream = path_or_io.respond_to? :reopen
+        path_or_io.binmode if path_or_io.respond_to? :binmode
         @zos = UnbufferedZipOutputStream.new(path_or_io, stream)
       end
 
