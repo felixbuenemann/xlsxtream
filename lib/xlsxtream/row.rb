@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "date"
 require "xlsxtream/xml"
 
 module Xlsxtream
