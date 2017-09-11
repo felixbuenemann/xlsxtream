@@ -4,45 +4,55 @@ require "xlsxtream/xml"
 
 module Xlsxtream
   class Row
+
+    ENCODING = Encoding.find('UTF-8')
+
     def initialize(row, rownum, sst = nil)
       @row = row
       @rownum = rownum
       @sst = sst
-      @encoding = Encoding.find("UTF-8")
     end
 
     def to_xml
       column = 'A'
-      @row.reduce(%'<row r="#@rownum">') do |xml, value|
-        cid = "#{column}#@rownum"
+      xml = %Q{<row r="#{@rownum}">}
+
+      @row.each do |value|
+        cid = "#{column}#{@rownum}"
         column.next!
-        xml << case value
+
+        case value
         when Numeric
-          %'<c r="#{cid}" t="n"><v>#{value}</v></c>'
+          xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
         when Date, Time, DateTime
           style = value.is_a?(Date) ? 1 : 2
-          %'<c r="#{cid}" s="#{style}"><v>#{time_to_oa_date value}</v></c>'
+          xml << %Q{<c r="#{cid}" s="#{style}"><v>#{time_to_oa_date(value)}</v></c>}
         else
           value = value.to_s unless value.is_a? String
+
           if value.empty?
-            ''
+            xml << ''
           else
-            value = value.encode(@encoding) if value.encoding != @encoding
+            value = value.encode(ENCODING) if value.encoding != ENCODING
+
             if @sst
-              %'<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>'
+              xml << %Q{<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>}
             else
-              %'<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value value}</t></is></c>'
+              xml << %Q{<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value value}</t></is></c>}
             end
           end
         end
-      end << '</row>'
+      end
+
+      xml << '</row>'
     end
 
     private
 
     # Converts Time objects to OLE Automation Date
     def time_to_oa_date(time)
-      time = time.respond_to?(:to_time) ? time.to_time : time
+      time = time.to_time if time.respond_to?(:to_time)
+
       # Local dates are stored as UTC by truncating the offset:
       # 1970-01-01 00:00:00 +0200 => 1970-01-01 00:00:00 UTC
       # This is done because SpreadsheetML is not timezone aware.
