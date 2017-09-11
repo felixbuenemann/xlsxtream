@@ -4,15 +4,17 @@ require "xlsxtream/row"
 
 module Xlsxtream
   class Worksheet
-    def initialize(io, sst = nil)
+    def initialize(io, options)
       @io = io
       @rownum = 1
-      @sst = sst
+      @sst = options[:sst]
+      @auto_format = options[:auto_format]
+
       write_header
     end
 
     def <<(row)
-      @io << Row.new(row, @rownum, @sst).to_xml
+      @io << Row.new(row, @rownum, :sst => @sst, :auto_format => @auto_format).to_xml
       @rownum += 1
     end
     alias_method :add_row, :<<

@@ -1,8 +1,13 @@
 # Xlsxtream
 
-Xlsxtream is a streaming writer for XLSX spreadsheets. It supports multiple worksheets and optional string deduplication via a shared string table (SST). Its purpose is to replace CSV for large exports, because using CSV in Excel is very buggy and error prone. It's very efficient and can quickly write millions of rows with low memory usage.
+Xlsxtream is a streaming writer for XLSX spreadsheets. It supports multiple worksheets and optional string
+deduplication via a shared string table (SST). Its purpose is to replace CSV for large exports, because using
+CSV in Excel is very buggy and error prone. It's very efficient and can quickly write millions of rows with
+low memory usage.
 
-Xlsxtream does not support formatting, charts, comments and a myriad of other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features. If you are looking for a fully featured solution take a look at [axslx](https://github.com/randym/axlsx).
+Xlsxtream does not support formatting, charts, comments and a myriad of
+other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features. If you are looking for a
+fully featured solution take a look at [axslx](https://github.com/randym/axlsx).
 
 Xlsxtream supports writing to files or IO-like objects, data is flushed as the ZIP compressor sees fit.
 
@@ -25,38 +30,51 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-# Creates a new workbook and closes it at the end of the block.
-Xlsxtream::Workbook.open("foo.xlsx") do |xlsx|
-  xlsx.write_worksheet "Sheet1" do |sheet|
+# Creates a new workbook and closes it at the end of the block
+Xlsxtream::Workbook.open('my_data.xlsx') do |xlsx|
+  xlsx.write_worksheet 'Sheet1' do |sheet|
     # Date, Time, DateTime and Numeric are properly mapped
-    sheet << [Date.today, "hello", "world", 42, 3.14159265359, 42**13]
+    sheet << [Date.today, 'hello', 'world', 42, 3.14159265359, 42**13]
   end
 end
 
-io = StringIO.new('')
+io = StringIO.new
 xlsx = Xlsxtream::Workbook.new(io)
-xlsx.write_worksheet "Sheet1" do |sheet|
-  # Number of columns doesn't have to match
-  sheet << %w[first row]
-  sheet << %w[second row with more colums]
+
+# Number of columns doesn't have to match
+xlsx.write_worksheet 'Sheet1' do |sheet|
+  sheet << ['first', 'row']
+  sheet << ['second', 'row', 'with', 'more colums']
 end
-# Write multiple worksheets with custom names:
-xlsx.write_worksheet "Foo & Bar" do |sheet|
-  sheet.add_row ["Timestamp", "Comment"]
-  sheet.add_row [Time.now, "Foo"]
-  sheet.add_row [Time.now, "Bar"]
+
+# Write multiple worksheets with custom names
+xlsx.write_worksheet 'AppendixSheet' do |sheet|
+  sheet.add_row ['Timestamp', 'Comment']
+  sheet.add_row [Time.now, 'Good times']
+  sheet.add_row [Time.now, 'Time-machine']
 end
-# If you have highly repetitive data, you can enable Shared
-# String Tables (SST) for the workbook or a single worksheet.
-# The SST has to be kept in memory, so don't use it if you
-# have a huge amount of rows or a little duplication of content
-# accros cells. A single SST is used across the whole workbook.
-xlsx.write_worksheet("SST", use_shared_strings: true) do |sheet|
-  sheet << %w[the same old story]
-  sheet << %w[the old same story]
-  sheet << %w[old, the same story]
+
+# If you have highly repetitive data, you can enable Shared String Tables (SST)
+# for the workbook or a single worksheet. The SST has to be kept in memory,
+# so do not use it if you have a huge amount of rows or a little duplication
+# of content across cells. A single SST is used for the whole workbook.
+xlsx.write_worksheet('SheetWithSST', :use_shared_strings => true) do |sheet|
+  sheet << ['the', 'same', 'old', 'story']
+  sheet << ['the', 'old', 'same', 'story']
+  sheet << ['old', 'the', 'same', 'story']
 end
-# Writes metadata and ZIP archive central directory.
+
+# Strings in numeric or date/time format can be auto-detected and formatted
+# appropriately. This is a convenient way to avoid an Excel-warning about
+# "Number stored as text". Dates and times must be in the ISO-8601 format and
+# numeric values must contain only numbers and an optional decimal separator.
+xlsx.write_worksheet('SheetWithAutoFormat', :auto_format => true) do |sheet|
+  # these two rows will be identical in the xlsx-output
+  sheet << [11.85, Time.parse('2050-01-01T12:00'), Date.parse('1984-01-01')]
+  sheet << ['11.85', '2050-01-01T12:00', '1984-01-01']
+end
+
+# Writes metadata and ZIP archive central directory
 xlsx.close
 ```
 
@@ -74,4 +92,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/felixb
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
