@@ -19,9 +19,10 @@ module Xlsxtream
         xml << case value
         when Numeric
           %'<c r="#{cid}" t="n"><v>#{value}</v></c>'
-        when Date, Time, DateTime
-          style = value.is_a?(Date) ? 1 : 2
-          %'<c r="#{cid}" s="#{style}"><v>#{time_to_oa_date value}</v></c>'
+        when DateTime, Time
+          %'<c r="#{cid}" s="2"><v>#{time_to_oa_date value}</v></c>'
+        when Date
+          %'<c r="#{cid}" s="1"><v>#{time_to_oa_date value}</v></c>'
         else
           value = value.to_s unless value.is_a? String
           if value.empty?
