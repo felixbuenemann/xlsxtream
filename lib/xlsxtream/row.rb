@@ -8,8 +8,10 @@ module Xlsxtream
     ENCODING = Encoding.find('UTF-8')
 
     NUMBER_PATTERN = /\A-?[0-9]+(\.[0-9]+)?\z/.freeze
-    DATE_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/.freeze # yyyy-mm-dd
-    TIME_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}/.freeze # yyyy-mm-ddThh:mm:ss
+    # ISO 8601 yyyy-mm-dd
+    DATE_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/.freeze
+    # ISO 8601 yyyy-mm-ddThh:mm:ss(.s)(Z|+hh:mm|-hh:mm)
+    TIME_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,9})?)?(?:Z|[+-][0-9]{2}:[0-9]{2})?\z/.freeze
 
     DATE_STYLE = 1
     TIME_STYLE = 2

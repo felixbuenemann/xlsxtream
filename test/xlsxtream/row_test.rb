@@ -74,10 +74,24 @@ module Xlsxtream
     end
 
     def test_text_date_time_column
-      row = Row.new(['1900-01-01T12:00:00+00:00'], 1, :auto_format => true)
+      candidates = [
+        '1900-01-01T12:00',
+        '1900-01-01T12:00Z',
+        '1900-01-01T12:00+00:00',
+        '1900-01-01T12:00:00+00:00',
+        '1900-01-01T12:00:00.000+00:00',
+        '1900-01-01T12:00:00.000000000Z'
+      ]
+      candidates.each do |timestamp|
+        row = Row.new([timestamp], 1, :auto_format => true)
+        actual = row.to_xml
+        expected = '<row r="1"><c r="A1" s="2"><v>2.5</v></c></row>'
+        assert_equal expected, actual
+      end
+      row = Row.new(['1900-01-01T12'], 1, :auto_format => true)
       actual = row.to_xml
       expected = '<row r="1"><c r="A1" s="2"><v>2.5</v></c></row>'
-      assert_equal expected, actual
+      refute_equal expected, actual
     end
 
     def test_time_column
