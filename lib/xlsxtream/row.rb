@@ -4,46 +4,82 @@ require "xlsxtream/xml"
 
 module Xlsxtream
   class Row
-    def initialize(row, rownum, sst = nil)
+
+    ENCODING = Encoding.find('UTF-8')
+
+    NUMBER_PATTERN = /\A-?[0-9]+(\.[0-9]+)?\z/.freeze
+    # ISO 8601 yyyy-mm-dd
+    DATE_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/.freeze
+    # ISO 8601 yyyy-mm-ddThh:mm:ss(.s)(Z|+hh:mm|-hh:mm)
+    TIME_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,9})?)?(?:Z|[+-][0-9]{2}:[0-9]{2})?\z/.freeze
+
+    DATE_STYLE = 1
+    TIME_STYLE = 2
+
+    def initialize(row, rownum, options = {})
       @row = row
       @rownum = rownum
-      @sst = sst
-      @encoding = Encoding.find("UTF-8")
+      @sst = options[:sst]
+      @auto_format = options[:auto_format]
     end
 
     def to_xml
       column = 'A'
-      @row.reduce(%'<row r="#@rownum">') do |xml, value|
-        cid = "#{column}#@rownum"
+      xml = %Q{<row r="#{@rownum}">}
+
+      @row.each do |value|
+        cid = "#{column}#{@rownum}"
         column.next!
-        xml << case value
+
+        if @auto_format && value.is_a?(String)
+          value = auto_format(value)
+        end
+
+        case value
         when Numeric
-          %'<c r="#{cid}" t="n"><v>#{value}</v></c>'
-        when DateTime, Time
-          %'<c r="#{cid}" s="2"><v>#{time_to_oa_date value}</v></c>'
+          xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
+        when Time, DateTime
+          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
         when Date
-          %'<c r="#{cid}" s="1"><v>#{time_to_oa_date value}</v></c>'
+          xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
         else
-          value = value.to_s unless value.is_a? String
-          if value.empty?
-            ''
-          else
-            value = value.encode(@encoding) if value.encoding != @encoding
+          value = value.to_s
+
+          unless value.empty? # no xml output for for empty strings
+            value = value.encode(ENCODING) if value.encoding != ENCODING
+
             if @sst
-              %'<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>'
+              xml << %Q{<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>}
             else
-              %'<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value value}</t></is></c>'
+              xml << %Q{<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
             end
           end
         end
-      end << '</row>'
+      end
+
+      xml << '</row>'
     end
 
     private
 
+    # Detects and casts numbers, date, time in text
+    def auto_format(value)
+      case value
+      when NUMBER_PATTERN
+        value.include?('.') ? value.to_f : value.to_i
+      when DATE_PATTERN
+        Date.parse(value)
+      when TIME_PATTERN
+        DateTime.parse(value)
+      else
+        value
+      end
+    end
+
     # Converts Time objects to OLE Automation Date
     def time_to_oa_date(time)
-      time = time.respond_to?(:to_time) ? time.to_time : time
+      time = time.to_time if time.respond_to?(:to_time)
+
       # Local dates are stored as UTC by truncating the offset:
       # 1970-01-01 00:00:00 +0200 => 1970-01-01 00:00:00 UTC
       # This is done because SpreadsheetML is not timezone aware.

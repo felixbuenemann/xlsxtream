@@ -37,12 +37,17 @@ module Xlsxtream
 
     def write_worksheet(name = nil, options = {})
       use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
+      auto_format = options.fetch(:auto_format, @options[:auto_format])
+      sst = use_sst ? @sst : nil
+
       name ||= "Sheet#{@worksheets.size + 1}"
       sheet_id = @worksheets[name]
       @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
-      worksheet = Worksheet.new(@io, use_sst ? @sst : nil)
+
+      worksheet = Worksheet.new(@io, :sst => sst, :auto_format => auto_format)
       yield worksheet if block_given?
       worksheet.close
+
       nil
     end
     alias_method :add_worksheet, :write_worksheet
