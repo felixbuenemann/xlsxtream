@@ -31,6 +31,13 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_text_integer_column
+      row = Row.new(['1'], 1, :auto_format => true)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="n"><v>1</v></c></row>'
+      assert_equal expected, actual
+    end
+
     def test_float_column
       row = Row.new([1.5], 1)
       actual = row.to_xml
@@ -38,8 +45,22 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
-    def test_date_column_oa_conversion
+    def test_text_float_column
+      row = Row.new(['1.5'], 1, :auto_format => true)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="n"><v>1.5</v></c></row>'
+      assert_equal expected, actual
+    end
+
+    def test_date_column
       row = Row.new([Date.new(1900, 1, 1)], 1)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" s="1"><v>2.0</v></c></row>'
+      assert_equal expected, actual
+    end
+
+    def test_text_date_column
+      row = Row.new(['1900-01-01'], 1, :auto_format => true)
       actual = row.to_xml
       expected = '<row r="1"><c r="A1" s="1"><v>2.0</v></c></row>'
       assert_equal expected, actual
@@ -47,6 +68,13 @@ module Xlsxtream
 
     def test_date_time_column
       row = Row.new([DateTime.new(1900, 1, 1, 12, 0, 0, '+00:00')], 1)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" s="2"><v>2.5</v></c></row>'
+      assert_equal expected, actual
+    end
+
+    def test_text_date_time_column
+      row = Row.new(['1900-01-01T12:00:00+00:00'], 1, :auto_format => true)
       actual = row.to_xml
       expected = '<row r="1"><c r="A1" s="2"><v>2.5</v></c></row>'
       assert_equal expected, actual
