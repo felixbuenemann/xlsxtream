@@ -25,7 +25,8 @@ module Xlsxtream
 
       # Extend get_compressor to hook our custom deflater.
       class UnbufferedZipOutputStream < ::Zip::OutputStream
-        private def get_compressor(entry, level)
+        private
+        def get_compressor(entry, level)
           case entry.compression_method
           when ::Zip::Entry::DEFLATED then
             StreamingDeflater.new(@output_stream, level, @encrypter)
