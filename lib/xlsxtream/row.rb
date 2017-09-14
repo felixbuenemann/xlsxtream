@@ -29,20 +29,19 @@ module Xlsxtream
         cid = "#{column}#{@rownum}"
         column.next!
 
-        if value.is_a?(Numeric) || number_string?(value)
-          value = value.include?('.') ? value.to_f : value.to_i if number_string?(value)
+        if @auto_format && value.is_a?(String)
+          value = auto_format(value)
+        end
+
+        case value
+        when Numeric
           xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
-
-        elsif value.is_a?(Time) || value.is_a?(DateTime) || time_string?(value)
-          value = DateTime.parse(value) if time_string?(value)
+        when Time, DateTime
           xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
-
-        elsif value.is_a?(Date) || date_string?(value)
-          value = Date.parse(value) if date_string?(value)
+        when Date
           xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
-
         else
-          value = value.to_s unless value.is_a?(String)
+          value = value.to_s
 
           unless value.empty? # no xml output for for empty strings
             value = value.encode(ENCODING) if value.encoding != ENCODING
@@ -60,16 +59,19 @@ module Xlsxtream
     end
 
     private
-    def number_string?(value)
-      @auto_format && value.is_a?(String) && value =~ NUMBER_PATTERN
-    end
 
-    def date_string?(value)
-      @auto_format && value.is_a?(String) && value =~ DATE_PATTERN
-    end
-
-    def time_string?(value)
-      @auto_format && value.is_a?(String) && value =~ TIME_PATTERN
+    # Detects and casts numbers, date, time in text
+    def auto_format(value)
+      case value
+      when NUMBER_PATTERN
+        value.include?('.') ? value.to_f : value.to_i
+      when DATE_PATTERN
+        Date.parse(value)
+      when TIME_PATTERN
+        DateTime.parse(value)
+      else
+        value
+      end
     end
 
     # Converts Time objects to OLE Automation Date
