@@ -70,7 +70,7 @@ end
 # numeric values must contain only numbers and an optional decimal separator.
 xlsx.write_worksheet('SheetWithAutoFormat', :auto_format => true) do |sheet|
   # these two rows will be identical in the xlsx-output
-  sheet << [11.85, Time.parse('2050-01-01T12:00'), Date.parse('1984-01-01')]
+  sheet << [11.85, DateTime.parse('2050-01-01T12:00'), Date.parse('1984-01-01')]
   sheet << ['11.85', '2050-01-01T12:00', '1984-01-01']
 end
 

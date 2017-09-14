@@ -34,11 +34,11 @@ module Xlsxtream
           xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
 
         elsif value.is_a?(Time) || value.is_a?(DateTime) || time_string?(value)
-          value = Time.iso_8601(value) if time_string?(value)
+          value = DateTime.parse(value) if time_string?(value)
           xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
 
         elsif value.is_a?(Date) || date_string?(value)
-          value = Date.iso_8601(value) if date_string?(value)
+          value = Date.parse(value) if date_string?(value)
           xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
 
         else
