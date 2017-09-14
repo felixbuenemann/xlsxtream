@@ -1,5 +1,8 @@
 # Xlsxtream
 
+[![Gem Version](https://badge.fury.io/rb/xlsxtream.svg)](https://rubygems.org/gems/xlsxtream)
+[![Build Status](https://travis-ci.org/felixbuenemann/xlsxtream.svg)](https://travis-ci.org/felixbuenemann/xlsxtream)
+
 Xlsxtream is a streaming writer for XLSX spreadsheets. It supports multiple worksheets and optional string
 deduplication via a shared string table (SST). Its purpose is to replace CSV for large exports, because using
 CSV in Excel is very buggy and error prone. It's very efficient and can quickly write millions of rows with
