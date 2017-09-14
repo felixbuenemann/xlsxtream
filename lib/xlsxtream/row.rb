@@ -14,7 +14,7 @@ module Xlsxtream
     DATE_STYLE = 1
     TIME_STYLE = 2
 
-    def initialize(row, rownum, options)
+    def initialize(row, rownum, options = {})
       @row = row
       @rownum = rownum
       @sst = options[:sst]

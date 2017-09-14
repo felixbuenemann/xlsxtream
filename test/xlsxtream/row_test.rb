@@ -61,7 +61,7 @@ module Xlsxtream
 
     def test_string_column_with_shared_string_table
       mock_sst = { 'hello' => 0 }
-      row = Row.new(['hello'], 1, mock_sst)
+      row = Row.new(['hello'], 1, :sst => mock_sst)
       expected = '<row r="1"><c r="A1" t="s"><v>0</v></c></row>'
       actual = row.to_xml
       assert_equal expected, actual
