@@ -3,6 +3,8 @@ language: ruby
 sudo: false
 cache: bundler
 
+before_install: gem install bundler -v '~> 1.15' --conservative --minimal-deps
+
 rvm:
   - 1.9.2
   - 1.9.3
