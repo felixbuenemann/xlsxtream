@@ -14,6 +14,13 @@ module Xlsxtream
     UNSAFE_ATTR_CHARS = /[&"<>]/.freeze
     UNSAFE_VALUE_CHARS = /[&<>]/.freeze
 
+    # http://www.w3.org/TR/REC-xml/#NT-Char:
+    # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+    INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u10000-\u10FFFF]/.freeze
+
+    # ST_Xstring escaping
+    ESCAPE_CHAR = lambda { |c| '_x%04x_'.freeze % c.ord }.freeze
+
     class << self
 
       def header
@@ -29,7 +36,7 @@ module Xlsxtream
       end
 
       def escape_value(string)
-        string.gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES)
+        string.gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES).gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
       end
 
     end
