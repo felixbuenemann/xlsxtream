@@ -234,6 +234,14 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_tempfile_is_not_closed
+      tempfile = Tempfile.new('workbook')
+      Workbook.open(tempfile) {}
+      assert_equal false, tempfile.closed?
+    ensure
+      tempfile && tempfile.close!
+    end
+
     private
 
     def io_wrapper_spy
