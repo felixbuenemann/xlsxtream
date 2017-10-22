@@ -4,9 +4,9 @@ module Xlsxtream
   module IO
     class RubyZip
       def initialize(path_or_io)
-        stream = path_or_io.respond_to? :reopen
+        @stream = path_or_io.respond_to? :reopen
         path_or_io.binmode if path_or_io.respond_to? :binmode
-        @zos = UnbufferedZipOutputStream.new(path_or_io, stream)
+        @zos = UnbufferedZipOutputStream.new(path_or_io, @stream)
       end
 
       def <<(data)
@@ -20,7 +20,7 @@ module Xlsxtream
       def close
         os = @zos.close_buffer
         os.flush if os.respond_to? :flush
-        os.close if os.respond_to? :close
+        os.close if !@stream and os.respond_to? :close
       end
 
       # Extend get_compressor to hook our custom deflater.
