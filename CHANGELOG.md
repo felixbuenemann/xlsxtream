@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0 (1027-10-22)
+
+- Don't close IO objects passed to Workbook constructor (#12)
+
 ## 0.3.1 (2017-10-22)
 
 - Escape invalid XML 1.0 characters (#11)
