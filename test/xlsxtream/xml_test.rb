@@ -29,5 +29,11 @@ module Xlsxtream
       expected = '&lt;hello&gt; &amp; "world"'
       assert_equal expected, XML.escape_value(unsafe_value)
     end
+
+    def test_escape_value_invalid_xml_chars
+      unsafe_value = "The \x07 rings\x00\uFFFE\uFFFF"
+      expected = 'The _x0007_ rings_x0000__xfffe__xffff_'
+      assert_equal expected, XML.escape_value(unsafe_value)
+    end
   end
 end
