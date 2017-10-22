@@ -24,6 +24,28 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_boolean_column
+      row = Row.new([true], 1)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="b"><v>1</v></c></row>'
+      assert_equal expected, actual
+      row = Row.new([false], 1)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="b"><v>0</v></c></row>'
+      assert_equal expected, actual
+    end
+
+    def test_text_boolean_column
+      row = Row.new(['true'], 1, :auto_format => true)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="b"><v>1</v></c></row>'
+      assert_equal expected, actual
+      row = Row.new(['false'], 1, :auto_format => true)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="b"><v>0</v></c></row>'
+      assert_equal expected, actual
+    end
+
     def test_integer_column
       row = Row.new([1], 1)
       actual = row.to_xml

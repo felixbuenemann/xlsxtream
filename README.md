@@ -36,8 +36,8 @@ Or install it yourself as:
 # Creates a new workbook and closes it at the end of the block
 Xlsxtream::Workbook.open('my_data.xlsx') do |xlsx|
   xlsx.write_worksheet 'Sheet1' do |sheet|
-    # Date, Time, DateTime and Numeric are properly mapped
-    sheet << [Date.today, 'hello', 'world', 42, 3.14159265359, 42**13]
+    # Boolean, Date, Time, DateTime and Numeric are properly mapped
+    sheet << [true, Date.today, 'hello', 'world', 42, 3.14159265359, 42**13]
   end
 end
 
@@ -71,10 +71,11 @@ end
 # appropriately. This is a convenient way to avoid an Excel-warning about
 # "Number stored as text". Dates and times must be in the ISO-8601 format and
 # numeric values must contain only numbers and an optional decimal separator.
+# The strings true and false are detected as boolean values.
 xlsx.write_worksheet('SheetWithAutoFormat', :auto_format => true) do |sheet|
   # these two rows will be identical in the xlsx-output
-  sheet << [11.85, DateTime.parse('2050-01-01T12:00'), Date.parse('1984-01-01')]
-  sheet << ['11.85', '2050-01-01T12:00', '1984-01-01']
+  sheet << [true, 11.85, DateTime.parse('2050-01-01T12:00'), Date.parse('1984-01-01')]
+  sheet << ['true', '11.85', '2050-01-01T12:00', '1984-01-01']
 end
 
 # Writes metadata and ZIP archive central directory

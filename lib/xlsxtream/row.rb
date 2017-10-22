@@ -13,6 +13,9 @@ module Xlsxtream
     # ISO 8601 yyyy-mm-ddThh:mm:ss(.s)(Z|+hh:mm|-hh:mm)
     TIME_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,9})?)?(?:Z|[+-][0-9]{2}:[0-9]{2})?\z/.freeze
 
+    TRUE_STRING = 'true'.freeze
+    FALSE_STRING = 'false'.freeze
+
     DATE_STYLE = 1
     TIME_STYLE = 2
 
@@ -38,6 +41,8 @@ module Xlsxtream
         case value
         when Numeric
           xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
+        when TrueClass, FalseClass
+          xml << %Q{<c r="#{cid}" t="b"><v>#{value ? 1 : 0}</v></c>}
         when Time, DateTime
           xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
         when Date
@@ -65,6 +70,10 @@ module Xlsxtream
     # Detects and casts numbers, date, time in text
     def auto_format(value)
       case value
+      when TRUE_STRING
+        true
+      when FALSE_STRING
+        false
       when NUMBER_PATTERN
         value.include?('.') ? value.to_f : value.to_i
       when DATE_PATTERN
