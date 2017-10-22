@@ -188,6 +188,25 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_write_unnamed_worksheet_with_options
+      iow_spy = io_wrapper_spy
+      Workbook.open(nil, :io_wrapper => iow_spy) do |wb|
+        wb.write_worksheet(:use_shared_strings => true)
+      end
+
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '\
+                  'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' \
+          '<workbookPr date1904="false"/>' \
+          '<sheets>' \
+            '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' \
+          '</sheets>' \
+        '</workbook>'
+      actual = iow_spy['xl/workbook.xml']
+      assert_equal expected, actual
+    end
+
     def test_styles_content
       iow_spy = io_wrapper_spy
       Workbook.open(nil, :io_wrapper => iow_spy) {}

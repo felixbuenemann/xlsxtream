@@ -36,6 +36,10 @@ module Xlsxtream
     end
 
     def write_worksheet(name = nil, options = {})
+      if name.is_a? Hash and options.empty?
+        options = name
+        name = nil
+      end
       use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
       auto_format = options.fetch(:auto_format, @options[:auto_format])
       sst = use_sst ? @sst : nil
