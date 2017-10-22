@@ -79,6 +79,8 @@ end
 
 # Writes metadata and ZIP archive central directory
 xlsx.close
+# Close IO object
+io.close
 ```
 
 ## Development
