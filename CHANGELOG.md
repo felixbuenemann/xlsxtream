@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.0.0 (1027-10-22)
+## 1.0.1 (2017-10-22)
+
+- Fix writing unnamed worksheets with options
+
+## 1.0.0 (2017-10-22)
 
 - Don't close IO objects passed to Workbook constructor (#12)
 
