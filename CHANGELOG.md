@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2017-10-22)
+
+- Escape invalid XML 1.0 characters (#11)
+
 ## 0.3.0 (2017-07-12)
 
 - Add support for auto-formatting
