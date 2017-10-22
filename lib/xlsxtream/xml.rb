@@ -19,7 +19,7 @@ module Xlsxtream
     INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u10000-\u10FFFF]/.freeze
 
     # ST_Xstring escaping
-    ESCAPE_CHAR = lambda { |c| '_x%04x_'.freeze % c.ord }.freeze
+    ESCAPE_CHAR = lambda { |c| '_x%04X_'.freeze % c.ord }.freeze
 
     class << self
 
