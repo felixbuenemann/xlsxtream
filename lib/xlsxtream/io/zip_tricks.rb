@@ -5,6 +5,7 @@ module Xlsxtream
     class ZipTricks
       def initialize(body)
         @streamer = ::ZipTricks::Streamer.new(body)
+        @wf = nil
       end
 
       def <<(data)

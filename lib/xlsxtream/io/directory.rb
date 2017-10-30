@@ -5,6 +5,7 @@ module Xlsxtream
     class Directory
       def initialize(path)
         @path = Pathname(path)
+        @file = nil
       end
 
       def <<(data)
@@ -19,7 +20,7 @@ module Xlsxtream
       end
 
       def close
-        @file.close if @file.respond_to? :close
+        @file.close if @file
       end
     end
   end

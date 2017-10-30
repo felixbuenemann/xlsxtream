@@ -3,6 +3,7 @@ module Xlsxtream
     class Stream
       def initialize(stream)
         @stream = stream
+        @path = nil
       end
 
       def <<(data)

@@ -48,8 +48,10 @@ module Xlsxtream
         @file = File.open(output, 'wb')
         @io = IO::ZipTricks.new(@file)
       elsif output.respond_to? :add_file
+        @file = nil
         @io = output
       else
+        @file = nil
         @io = IO::ZipTricks.new(output)
       end
       @sst = SharedStringTable.new
