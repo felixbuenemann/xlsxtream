@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "stringio"
+require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
 require "xlsxtream/workbook"
@@ -9,6 +10,15 @@ require "xlsxtream/io/stream"
 
 module Xlsxtream
   class Workbook
+
+    FONT_FAMILY_IDS = {
+      ''           => 0,
+      'roman'      => 1,
+      'swiss'      => 2,
+      'modern'     => 3,
+      'script'     => 4,
+      'decorative' => 5
+    }.freeze
 
     class << self
 
@@ -98,6 +108,14 @@ module Xlsxtream
     end
 
     def write_styles
+      font_options = @options.fetch(:font, {})
+      font_size = font_options.fetch(:size, 12).to_s
+      font_name = font_options.fetch(:name, 'Calibri').to_s
+      font_family = font_options.fetch(:family, 'Swiss').to_s.downcase
+      font_family_id = FONT_FAMILY_IDS[font_family] or fail Error,
+        "Invalid font family #{font_family}, must be one of "\
+        + FONT_FAMILY_IDS.keys.map(&:inspect).join(', ')
+
       @io.add_file "xl/styles.xml"
       @io << XML.header
       @io << XML.strip(<<-XML)
@@ -108,9 +126,9 @@ module Xlsxtream
           </numFmts>
           <fonts count="1">
             <font>
-              <sz val="12"/>
-              <name val="Calibri"/>
-              <family val="2"/>
+              <sz val="#{XML.escape_attr font_size}"/>
+              <name val="#{XML.escape_attr font_name}"/>
+              <family val="#{font_family_id}"/>
             </font>
           </fonts>
           <fills count="2">
