@@ -35,5 +35,11 @@ module Xlsxtream
       expected = 'The _x0007_ rings_x0000__xFFFE__xFFFF_'
       assert_equal expected, XML.escape_value(unsafe_value)
     end
+
+    def test_escape_value_valid_xml_chars
+      safe_value = "\u{10000}\u{10FFFF}"
+      expected = safe_value
+      assert_equal expected, XML.escape_value(safe_value)
+    end
   end
 end

@@ -16,7 +16,7 @@ module Xlsxtream
 
     # http://www.w3.org/TR/REC-xml/#NT-Char:
     # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-    INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u10000-\u10FFFF]/.freeze
+    INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/.freeze
 
     # ST_Xstring escaping
     ESCAPE_CHAR = lambda { |c| '_x%04X_'.freeze % c.ord }.freeze
