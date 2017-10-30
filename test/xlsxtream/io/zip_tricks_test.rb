@@ -22,16 +22,16 @@ module Xlsxtream
 
       zip_buf.rewind
 
-      files_contents = {}
+      file_contents = {}
       ::Zip::File.open(zip_buf.path) do |zip_file|
         # Handle entries one by one
         zip_file.each do |entry|
-          files_contents[entry.name] = entry.get_input_stream.read
+          file_contents[entry.name] = entry.get_input_stream.read
         end
       end
-      assert_equal '', files_contents['empty.txt']
-      assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook></workbook>', files_contents['book2.xml']
-      assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><another />', files_contents['another.xml']
+      assert_equal '', file_contents['empty.txt']
+      assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook></workbook>', file_contents['book2.xml']
+      assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><another />', file_contents['another.xml']
     end
   end
 end
