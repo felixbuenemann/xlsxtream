@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 (2017-10-30)
+
+- Add support for customizing default font (#17)
+
 ## 1.1.0 (2017-10-23)
 
 - Add support for boolean values (#13)
