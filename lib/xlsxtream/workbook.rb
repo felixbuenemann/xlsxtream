@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "stringio"
 require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
