@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.2 (2017-10-30)
+
+- Fix circular require in workbook
+- Fix wrong escaping of extended Unicode characters
+
 ## 1.3.1 (2017-10-30)
 
 - Restore stringio require in workbook
