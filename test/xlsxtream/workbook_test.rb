@@ -253,6 +253,63 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_custom_font_size
+      iow_spy = io_wrapper_spy
+      font_options = { :size => 23 }
+      Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      expected = '<sz val="23"/>'
+      actual = iow_spy['xl/styles.xml'][/<sz [^>]+>/]
+      assert_equal expected, actual
+    end
+
+    def test_custom_font_name
+      iow_spy = io_wrapper_spy
+      font_options = { :name => 'Comic Sans' }
+      Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      expected = '<name val="Comic Sans"/>'
+      actual = iow_spy['xl/styles.xml'][/<name [^>]+>/]
+      assert_equal expected, actual
+    end
+
+    def test_custom_font_family
+      iow_spy = io_wrapper_spy
+      font_options = { :family => 'Script' }
+      Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      expected = '<family val="4"/>'
+      actual = iow_spy['xl/styles.xml'][/<family [^>]+>/]
+      assert_equal expected, actual
+    end
+
+    def test_font_family_mapping
+      tests = {
+        nil => 0,
+        ''  => 0,
+        'ROMAN' => 1,
+        :roman => 1,
+        'Roman' => 1,
+        :swiss => 2,
+        :modern => 3,
+        :script => 4,
+        :decorative => 5
+      }
+      tests.each do |value, id|
+        iow_spy = io_wrapper_spy
+        font_options = { :family => value }
+        Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+        expected = "<family val=\"#{id}\"/>"
+        actual = iow_spy['xl/styles.xml'][/<family [^>]+>/]
+        assert_equal expected, actual
+      end
+    end
+
+    def test_invalid_font_family
+      iow_spy = io_wrapper_spy
+      font_options = { :family => 'Foo' }
+      assert_raises Xlsxtream::Error do
+        Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      end
+    end
+
     def test_tempfile_is_not_closed
       tempfile = Tempfile.new('workbook')
       Workbook.open(tempfile) {}
