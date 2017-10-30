@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1 (2017-10-30)
+
+- Restore stringio require in workbook
+
 ## 1.3.0 (2017-10-30)
 
 - Drop rubyzip buffering workarounds, require rubyzip >= 1.2.0 (#17)
