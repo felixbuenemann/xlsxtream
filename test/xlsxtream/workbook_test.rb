@@ -1,9 +1,26 @@
 require 'test_helper'
+require 'tempfile'
 require 'xlsxtream/workbook'
 require 'xlsxtream/io/hash'
 
 module Xlsxtream
   class WorksheetTest < Minitest::Test
+
+    def test_workbook_from_path
+      tempfile = Tempfile.new('xlsxtream')
+      Workbook.open(tempfile.path) {}
+      refute_equal 0, tempfile.size
+    ensure
+      tempfile.close! if tempfile
+    end
+
+    def test_workbook_from_io
+      tempfile = Tempfile.new('xlsxtream')
+      Workbook.open(tempfile) {}
+      refute_equal 0, tempfile.size
+    ensure
+      tempfile.close! if tempfile
+    end
 
     def test_empty_workbook
       iow_spy = io_wrapper_spy
