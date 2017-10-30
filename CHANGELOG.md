@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 (2017-10-30)
+
+- Drop rubyzip buffering workarounds, require rubyzip >= 1.2.0 (#17)
+- Drop Ruby 1.9.1 compatibility (rubyzip 1.2 requires ruby >= 1.9.2)
+- Refactor IO wrappers (#18)
+
 ## 1.2.0 (2017-10-30)
 
 - Add support for customizing default font (#17)
