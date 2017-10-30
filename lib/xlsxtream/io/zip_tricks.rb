@@ -2,9 +2,9 @@ require "zip_tricks"
 
 module Xlsxtream
   module IO
-    class ZipTricksIO
+    class ZipTricks
       def initialize(body)
-        @streamer = ZipTricks::Streamer.new(body)
+        @streamer = ::ZipTricks::Streamer.new(body)
       end
 
       def <<(data)

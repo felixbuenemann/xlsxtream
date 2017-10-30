@@ -4,12 +4,12 @@ require 'xlsxtream/io/hash'
 require 'zip'
 
 module Xlsxtream
-  class ZipTricksIOTest < Minitest::Test
+  class ZipTricksTest < Minitest::Test
 
     def test_writes_of_multiple_files
       zip_buf = Tempfile.new('ztio-test')
 
-      io = Xlsxtream::IO::ZipTricksIO.new(zip_buf)
+      io = Xlsxtream::IO::ZipTricks.new(zip_buf)
       io.add_file("book1.xml")
       io << '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook />'
       io.add_file("book2.xml")
