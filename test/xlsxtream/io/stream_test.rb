@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'stringio'
 require 'xlsxtream/io/stream'
 
 module Xlsxtream
@@ -20,7 +21,7 @@ module Xlsxtream
         io.close
 
         file_contents = buffer.string
-        assert_equal <<-EOF, file_contents
+        assert_equal(<<-EOF, file_contents)
 book1.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook />
 book2.xml

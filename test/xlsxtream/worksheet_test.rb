@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'stringio'
 require 'xlsxtream/worksheet'
 
 module Xlsxtream

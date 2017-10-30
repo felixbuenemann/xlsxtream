@@ -1,5 +1,4 @@
 # encoding: utf-8
-require "stringio"
 require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
@@ -20,7 +19,7 @@ module Xlsxtream
 
     class << self
 
-      def open(output = nil, options = {})
+      def open(output, options = {})
         workbook = new(output, options)
         if block_given?
           begin
@@ -35,15 +34,23 @@ module Xlsxtream
 
     end
 
-    def initialize(output = nil, options = {})
-      output ||= StringIO.new
+    def initialize(output, options = {})
+      if output.nil?
+        fail Error, "Xlsxtream::Workbook.new output cannot be nil"
+      end
       @options = options
-      io_wrapper = options[:io_wrapper] || IO::ZipTricks
+      if options[:io_wrapper]
+        fail Deprecation,
+          "The Xlsxtream::Workbook.new :io_wrapper option is deprecated. "\
+          "Please pass an IO wrapper instance as the first argument instead."
+      end
       if output.is_a?(String) || !output.respond_to?(:<<)
         @file = File.open(output, 'wb')
-        @io = io_wrapper.new(@file)
+        @io = IO::ZipTricks.new(@file)
+      elsif output.respond_to? :add_file
+        @io = output
       else
-        @io = io_wrapper.new(output)
+        @io = IO::ZipTricks.new(output)
       end
       @sst = SharedStringTable.new
       @worksheets = Hash.new { |hash, name| hash[name] = hash.size + 1 }
@@ -77,7 +84,7 @@ module Xlsxtream
       write_workbook_rels
       write_root_rels
       write_content_types
-      @io.close
+      @io.close if @io.respond_to? :close
       @file.close if @file
       nil
     end
