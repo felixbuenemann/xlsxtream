@@ -4,7 +4,7 @@ require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
 require "xlsxtream/worksheet"
-require "xlsxtream/io/rubyzip"
+require "xlsxtream/io/zip_tricks"
 
 module Xlsxtream
   class Workbook
@@ -38,7 +38,7 @@ module Xlsxtream
     def initialize(output = nil, options = {})
       output ||= StringIO.new
       @options = options
-      io_wrapper = options[:io_wrapper] || IO::RubyZip
+      io_wrapper = options[:io_wrapper] || IO::ZipTricks
       if output.is_a?(String) || !output.respond_to?(:<<)
         @file = File.open(output, 'wb')
         @io = io_wrapper.new(@file)
