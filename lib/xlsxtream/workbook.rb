@@ -4,8 +4,6 @@ require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
 require "xlsxtream/workbook"
 require "xlsxtream/io/rubyzip"
-require "xlsxtream/io/directory"
-require "xlsxtream/io/stream"
 
 module Xlsxtream
   class Workbook
