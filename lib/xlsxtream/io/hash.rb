@@ -38,7 +38,7 @@ module Xlsxtream
       end
 
       def to_h
-        @hash.keys.map {|path| [path, fetch(path)] }.to_h
+        ::Hash[@hash.keys.map {|path| [path, fetch(path)] }]
       end
     end
   end
