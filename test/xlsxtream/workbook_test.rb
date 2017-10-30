@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'stringio'
 require 'tempfile'
 require 'xlsxtream/workbook'
 require 'xlsxtream/io/hash'
@@ -24,7 +25,7 @@ module Xlsxtream
 
     def test_empty_workbook
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) {}
+      Workbook.open(iow_spy) {}
       expected = {
         'xl/workbook.xml' =>
           '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
@@ -47,7 +48,7 @@ module Xlsxtream
 
     def test_workbook_with_sheet
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) do |wb|
+      Workbook.open(iow_spy) do |wb|
         wb.add_worksheet
       end
       expected = {
@@ -80,7 +81,7 @@ module Xlsxtream
 
     def test_workbook_with_sst
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) do |wb|
+      Workbook.open(iow_spy) do |wb|
         wb.add_worksheet(nil, use_shared_strings: true) do |ws|
           ws << ['foo']
         end
@@ -123,7 +124,7 @@ module Xlsxtream
 
     def test_root_relations
       iow_spy = io_wrapper_spy
-      Workbook.new(nil, :io_wrapper => iow_spy).close
+      Workbook.new(iow_spy).close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
         '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' \
@@ -135,7 +136,7 @@ module Xlsxtream
 
     def test_content_types
       iow_spy = io_wrapper_spy
-      Workbook.new(nil, :io_wrapper => iow_spy).close
+      Workbook.new(iow_spy).close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
         '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' \
@@ -150,7 +151,7 @@ module Xlsxtream
 
     def test_write_multiple_worksheets
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) do |wb|
+      Workbook.open(iow_spy) do |wb|
         wb.write_worksheet
         wb.write_worksheet
       end
@@ -188,7 +189,7 @@ module Xlsxtream
 
     def test_write_named_worksheet
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) do |wb|
+      Workbook.open(iow_spy) do |wb|
         wb.write_worksheet('foo')
       end
 
@@ -207,7 +208,7 @@ module Xlsxtream
 
     def test_write_unnamed_worksheet_with_options
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) do |wb|
+      Workbook.open(iow_spy) do |wb|
         wb.write_worksheet(:use_shared_strings => true)
       end
 
@@ -226,7 +227,7 @@ module Xlsxtream
 
     def test_styles_content
       iow_spy = io_wrapper_spy
-      Workbook.open(nil, :io_wrapper => iow_spy) {}
+      Workbook.open(iow_spy) {}
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
         '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
@@ -273,7 +274,7 @@ module Xlsxtream
     def test_custom_font_size
       iow_spy = io_wrapper_spy
       font_options = { :size => 23 }
-      Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      Workbook.open(iow_spy, :font => font_options) {}
       expected = '<sz val="23"/>'
       actual = iow_spy['xl/styles.xml'][/<sz [^>]+>/]
       assert_equal expected, actual
@@ -282,7 +283,7 @@ module Xlsxtream
     def test_custom_font_name
       iow_spy = io_wrapper_spy
       font_options = { :name => 'Comic Sans' }
-      Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      Workbook.open(iow_spy, :font => font_options) {}
       expected = '<name val="Comic Sans"/>'
       actual = iow_spy['xl/styles.xml'][/<name [^>]+>/]
       assert_equal expected, actual
@@ -291,7 +292,7 @@ module Xlsxtream
     def test_custom_font_family
       iow_spy = io_wrapper_spy
       font_options = { :family => 'Script' }
-      Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+      Workbook.open(iow_spy, :font => font_options) {}
       expected = '<family val="4"/>'
       actual = iow_spy['xl/styles.xml'][/<family [^>]+>/]
       assert_equal expected, actual
@@ -312,7 +313,7 @@ module Xlsxtream
       tests.each do |value, id|
         iow_spy = io_wrapper_spy
         font_options = { :family => value }
-        Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+        Workbook.open(iow_spy, :font => font_options) {}
         expected = "<family val=\"#{id}\"/>"
         actual = iow_spy['xl/styles.xml'][/<family [^>]+>/]
         assert_equal expected, actual
@@ -323,7 +324,7 @@ module Xlsxtream
       iow_spy = io_wrapper_spy
       font_options = { :family => 'Foo' }
       assert_raises Xlsxtream::Error do
-        Workbook.open(nil, :io_wrapper => iow_spy, :font => font_options) {}
+        Workbook.open(iow_spy, :font => font_options) {}
       end
     end
 
@@ -338,22 +339,7 @@ module Xlsxtream
     private
 
     def io_wrapper_spy
-      Class.new do
-        @iow = IO::Hash.new(StringIO.new)
-        class << self
-          def new(*)
-            @iow
-          end
-
-          def [](path)
-            @iow[path]
-          end
-
-          def to_h
-            @iow.to_h
-          end
-        end
-      end
+      IO::Hash.new(StringIO.new)
     end
 
   end
