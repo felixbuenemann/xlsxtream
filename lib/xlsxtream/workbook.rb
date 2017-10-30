@@ -1,12 +1,9 @@
 # encoding: utf-8
-require "stringio"
 require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
 require "xlsxtream/workbook"
 require "xlsxtream/io/rubyzip"
-require "xlsxtream/io/directory"
-require "xlsxtream/io/stream"
 
 module Xlsxtream
   class Workbook
@@ -22,8 +19,8 @@ module Xlsxtream
 
     class << self
 
-      def open(data = nil, options = {})
-        workbook = new(data, options)
+      def open(output = nil, options = {})
+        workbook = new(output, options)
         if block_given?
           begin
             yield workbook
@@ -37,10 +34,16 @@ module Xlsxtream
 
     end
 
-    def initialize(data = nil, options = {})
+    def initialize(output = nil, options = {})
+      output ||= StringIO.new
       @options = options
       io_wrapper = options[:io_wrapper] || IO::RubyZip
-      @io = io_wrapper.new(data || StringIO.new)
+      if output.is_a?(String) || !output.respond_to?(:<<)
+        @file = File.open(output, 'wb')
+        @io = io_wrapper.new(@file)
+      else
+        @io = io_wrapper.new(output)
+      end
       @sst = SharedStringTable.new
       @worksheets = Hash.new { |hash, name| hash[name] = hash.size + 1 }
     end
@@ -74,6 +77,7 @@ module Xlsxtream
       write_root_rels
       write_content_types
       @io.close
+      @file.close if @file
       nil
     end
 
