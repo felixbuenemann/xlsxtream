@@ -82,6 +82,14 @@ end
 xlsx.close
 # Close IO object
 io.close
+
+# Changing the default font from Calibri, 12pt, Swiss
+Xlsxtream::Workbook.new(io, :font => {
+  :name => 'Times New Roman',
+  :size => 10, # size in pt
+  :family => 'Roman' # Swiss, Modern, Script, Decorative
+})
+
 ```
 
 ## Development
