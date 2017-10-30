@@ -3,7 +3,7 @@ require "stringio"
 require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
-require "xlsxtream/workbook"
+require "xlsxtream/worksheet"
 require "xlsxtream/io/rubyzip"
 
 module Xlsxtream
