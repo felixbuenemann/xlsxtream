@@ -92,6 +92,33 @@ Xlsxtream::Workbook.new(io, font: {
 
 ```
 
+## Compatibility
+
+The current version of Xlsxtream requires at least Ruby 2.1.0.
+
+If you are using an older Ruby version you can use the following in your Gemfile:
+
+```ruby
+gem 'xlsxtream', '< 2'
+```
+
+* The last version with support for Ruby 1.9.1 is 1.2.0.
+* The last version with support for Ruby 1.9.2 is 1.3.2.
+
+## Upgrading
+
+If you are upgrading from a version earlier than 2.x and are using the undocumented `:io_wrapper` option you need to update your code:
+
+```ruby
+# Pre 2.x code with :io_wrapper option
+Xlsxtream::Workbook.new(io, io_wrapper: MyCustomIOWrapper)
+# New code with IO wrapper instance
+io_wrapper = MyCustomIOWrapper.new(io)
+Xlsxtream::Workbook.new(io_wrapper)
+```
+
+Every IO-like object that responds to `:add_file` is treated as an IO wrapper.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
