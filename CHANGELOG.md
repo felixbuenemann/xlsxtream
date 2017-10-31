@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0 (2017-10-31)
+
+- Replace RubyZip with ZipTricks as default compressor (#16)
+- Drop support for Ruby < 2.1.0 (required for zip\_tricks gem)
+- Deprecate :io\_wrapper option, you can now pass wrapper instances (#20)
+
 ## 1.3.2 (2017-10-30)
 
 - Fix circular require in workbook
