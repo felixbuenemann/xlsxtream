@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1 (2018-03-11)
+
+- Rescue gracefully from invalid dates with auto-format (#22)
+- Remove unused ZipTricksFibers IO wrapper (#24)
+
 ## 2.0.0 (2017-10-31)
 
 - Replace RubyZip with ZipTricks as default compressor (#16)
