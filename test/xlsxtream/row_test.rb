@@ -88,6 +88,13 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_invalid_text_date_column
+      row = Row.new(['1900-02-29'], 1, :auto_format => true)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="inlineStr"><is><t>1900-02-29</t></is></c></row>'
+      assert_equal expected, actual
+    end
+
     def test_date_time_column
       row = Row.new([DateTime.new(1900, 1, 1, 12, 0, 0, '+00:00')], 1)
       actual = row.to_xml
@@ -114,6 +121,13 @@ module Xlsxtream
       actual = row.to_xml
       expected = '<row r="1"><c r="A1" s="2"><v>2.5</v></c></row>'
       refute_equal expected, actual
+    end
+
+    def test_invalid_text_date_time_column
+      row = Row.new(['1900-02-29T12:00'], 1, :auto_format => true)
+      actual = row.to_xml
+      expected = '<row r="1"><c r="A1" t="inlineStr"><is><t>1900-02-29T12:00</t></is></c></row>'
+      assert_equal expected, actual
     end
 
     def test_time_column
