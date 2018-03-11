@@ -77,9 +77,9 @@ module Xlsxtream
       when NUMBER_PATTERN
         value.include?('.') ? value.to_f : value.to_i
       when DATE_PATTERN
-        Date.parse(value)
+        Date.parse(value) rescue value
       when TIME_PATTERN
-        DateTime.parse(value)
+        DateTime.parse(value) rescue value
       else
         value
       end
