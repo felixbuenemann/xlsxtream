@@ -46,6 +46,11 @@ module Xlsxtream
     end
 
     def write_footer
+      unless @sheetdata_written
+        @sheetdata_written = true
+        @io << '<sheetData>'
+      end
+
       @io << XML.strip(<<-XML)
           </sheetData>
         </worksheet>
