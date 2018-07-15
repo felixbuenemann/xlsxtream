@@ -8,25 +8,11 @@ module Xlsxtream
       @io = io
       @rownum = 1
       @options = options
-      @sheetdata_written = false
 
       write_header
     end
 
-    # If you want to specify custom column widths, do so using this
-    # method. See Xlsstream::Columns#initialize for parameter details.
-    # This MUST be called before #add_row or #<<.
-    #
-    def add_columns(column_options_array)
-      @io << Columns.new(column_options_array).to_xml
-    end
-
     def <<(row)
-      unless @sheetdata_written
-        @sheetdata_written = true
-        @io << '<sheetData>'
-      end
-
       @io << Row.new(row, @rownum, @options).to_xml
       @rownum += 1
     end
@@ -43,14 +29,18 @@ module Xlsxtream
       @io << XML.strip(<<-XML)
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
       XML
+
+      columns = @options[:columns]
+      if columns.is_a?(Array)
+        @io << Columns.new(columns).to_xml
+      end
+
+      @io << XML.strip(<<-XML)
+          <sheetData>
+      XML
     end
 
     def write_footer
-      unless @sheetdata_written
-        @sheetdata_written = true
-        @io << '<sheetData>'
-      end
-
       @io << XML.strip(<<-XML)
           </sheetData>
         </worksheet>
