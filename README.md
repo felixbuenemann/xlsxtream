@@ -90,7 +90,17 @@ Xlsxtream::Workbook.new(io, font: {
   family: 'Roman' # Swiss, Modern, Script, Decorative
 })
 
+# Specifying column widths in pixels or characters; 3 column example;
+# "pixel" widths appear to be *relative* to an assumed 11pt Calibri
+# font, so if selecting a different font or size (see above), do not
+# adjust widths to match. Calculate pixel widths for 11pt Calibri.
+Xlsxtream::Workbook.new(io, columns: [
+  { width_pixels: 33 },
+  { width_chars: 7 },
+  { width_chars: 24 }
+])
 ```
+
 
 ## Compatibility
 

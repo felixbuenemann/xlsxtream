@@ -2,7 +2,7 @@
 
 ## 2.1.0 (2018-07-11)
 
-- New `#add_columns` interface, allowing column widths to be specified
+- New `:columns` option, allowing column widths to be specified
 
 ## 2.0.1 (2018-03-11)
 
