@@ -30,8 +30,8 @@ module Xlsxtream
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
       XML
 
-      columns = @options[:columns]
-      if columns.is_a?(Array)
+      columns = Array(@options[:columns])
+      unless columns.empty?
         @io << Columns.new(columns).to_xml
       end
 
