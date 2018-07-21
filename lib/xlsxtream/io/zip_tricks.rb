@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "zip_tricks"
 
 module Xlsxtream
@@ -8,7 +9,7 @@ module Xlsxtream
       def initialize(body)
         @streamer = ::ZipTricks::Streamer.new(body)
         @wf = nil
-        @buffer = ''
+        @buffer = String.new
       end
 
       def <<(data)

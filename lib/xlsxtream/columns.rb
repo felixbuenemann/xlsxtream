@@ -1,5 +1,4 @@
-# encoding: utf-8
-
+# frozen_string_literal: true
 module Xlsxtream
   class Columns
 
@@ -18,7 +17,7 @@ module Xlsxtream
     end
 
     def to_xml
-      xml = '<cols>'
+      xml = String.new('<cols>')
 
       @columns.each_with_index do |column, index|
         width_chars  = column[ :width_chars  ]
