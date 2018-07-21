@@ -225,6 +225,50 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_add_columns_via_workbook_options
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
+        wb.add_worksheet {}
+      end
+
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>' \
+          '<col min="1" max="1"/>' \
+          '<col min="2" max="2"/>' \
+          '<col min="3" max="3" width="42" customWidth="1"/>' \
+        '</cols>' \
+        '<sheetData></sheetData></worksheet>'
+
+      actual = iow_spy['xl/worksheets/sheet1.xml']
+      assert_equal expected, actual
+    end
+
+    def test_add_columns_via_workbook_options_and_add_rows
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
+        wb.add_worksheet do |ws|
+          ws << ['foo']
+          ws.add_row ['bar']
+        end
+      end
+
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>' \
+          '<col min="1" max="1"/>' \
+          '<col min="2" max="2"/>' \
+          '<col min="3" max="3" width="42" customWidth="1"/>' \
+        '</cols>' \
+        '<sheetData>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row>' \
+          '<row r="2"><c r="A2" t="inlineStr"><is><t>bar</t></is></c></row>' \
+        '</sheetData></worksheet>'
+
+      actual = iow_spy['xl/worksheets/sheet1.xml']
+      assert_equal expected, actual
+    end
+
     def test_styles_content
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) {}

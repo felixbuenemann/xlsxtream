@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 (2018-07-11)
+
+- New `:columns` option, allowing column widths to be specified
+
 ## 2.0.1 (2018-03-11)
 
 - Rescue gracefully from invalid dates with auto-format (#22)

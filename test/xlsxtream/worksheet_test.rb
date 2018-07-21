@@ -55,5 +55,40 @@ module Xlsxtream
         '</sheetData></worksheet>'
       assert_equal expected, io.string
     end
+
+    def test_add_columns_via_worksheet_options
+      io = StringIO.new
+      ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>' \
+          '<col min="1" max="1"/>' \
+          '<col min="2" max="2"/>' \
+          '<col min="3" max="3" width="42" customWidth="1"/>' \
+        '</cols>' \
+        '<sheetData></sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_add_columns_via_worksheet_options_and_add_rows
+      io = StringIO.new
+      ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
+      ws << ['foo']
+      ws.add_row ['bar']
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols>' \
+          '<col min="1" max="1"/>' \
+          '<col min="2" max="2"/>' \
+          '<col min="3" max="3" width="42" customWidth="1"/>' \
+        '</cols>' \
+        '<sheetData>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row>' \
+          '<row r="2"><c r="A2" t="inlineStr"><is><t>bar</t></is></c></row>' \
+        '</sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
   end
 end

@@ -28,6 +28,14 @@ module Xlsxtream
       @io << XML.header
       @io << XML.strip(<<-XML)
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+      XML
+
+      columns = Array(@options[:columns])
+      unless columns.empty?
+        @io << Columns.new(columns).to_xml
+      end
+
+      @io << XML.strip(<<-XML)
           <sheetData>
       XML
     end
