@@ -99,6 +99,8 @@ Xlsxtream::Workbook.new(io, columns: [
   { width_chars: 7 },
   { width_chars: 24 }
 ])
+# The :columns option can also be given to write_worksheet, so it's
+# possible to have multiple worksheets with different column widths.
 ```
 
 
