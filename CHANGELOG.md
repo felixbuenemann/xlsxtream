@@ -1,8 +1,10 @@
 # Changelog
 
-## 2.1.0 (2018-07-11)
+## 2.1.0 (2018-07-21)
 
-- New `:columns` option, allowing column widths to be specified
+- New `:columns` option, allowing column widths to be specified (#25)
+- Fix compatibility with `ruby --enable-frozen-string-literal` (#27)
+- Support giving the worksheet name as an option to write\_worksheet (#28)
 
 ## 2.0.1 (2018-03-11)
 
@@ -52,7 +54,7 @@
 
 ## 0.3.0 (2017-07-12)
 
-- Add support for auto-formatting
+- Add support for auto-formatting (#8)
 
 ## 0.2.0 (2017-02-20)
 
