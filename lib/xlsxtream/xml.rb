@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Xlsxtream
   module XML
     XML_ESCAPES = {

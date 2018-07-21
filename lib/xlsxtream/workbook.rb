@@ -1,4 +1,4 @@
-# encoding: utf-8
+# frozen_string_literal: true
 require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
@@ -105,7 +105,7 @@ module Xlsxtream
     end
 
     def write_workbook
-      rid = "rId0"
+      rid = String.new("rId0")
       @io.add_file "xl/workbook.xml"
       @io << XML.header
       @io << XML.strip(<<-XML)
@@ -185,7 +185,7 @@ module Xlsxtream
     end
 
     def write_workbook_rels
-      rid = "rId0"
+      rid = String.new("rId0")
       @io.add_file "xl/_rels/workbook.xml.rels"
       @io << XML.header
       @io << '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'

@@ -1,4 +1,4 @@
-# encoding: utf-8
+# frozen_string_literal: true
 require "date"
 require "xlsxtream/xml"
 
@@ -27,8 +27,8 @@ module Xlsxtream
     end
 
     def to_xml
-      column = 'A'
-      xml = %Q{<row r="#{@rownum}">}
+      column = String.new('A')
+      xml = String.new(%Q{<row r="#{@rownum}">})
 
       @row.each do |value|
         cid = "#{column}#{@rownum}"
