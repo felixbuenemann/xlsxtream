@@ -61,7 +61,7 @@ end
 # for the workbook or a single worksheet. The SST has to be kept in memory,
 # so do not use it if you have a huge amount of rows or a little duplication
 # of content across cells. A single SST is used for the whole workbook.
-xlsx.write_worksheet('SheetWithSST', use_shared_strings: true) do |sheet|
+xlsx.write_worksheet(name: 'SheetWithSST', use_shared_strings: true) do |sheet|
   sheet << ['the', 'same', 'old', 'story']
   sheet << ['the', 'old', 'same', 'story']
   sheet << ['old', 'the', 'same', 'story']
@@ -72,7 +72,7 @@ end
 # "Number stored as text". Dates and times must be in the ISO-8601 format and
 # numeric values must contain only numbers and an optional decimal separator.
 # The strings true and false are detected as boolean values.
-xlsx.write_worksheet('SheetWithAutoFormat', auto_format: true) do |sheet|
+xlsx.write_worksheet(name: 'SheetWithAutoFormat', auto_format: true) do |sheet|
   # these two rows will be identical in the xlsx-output
   sheet << [true, 11.85, DateTime.parse('2050-01-01T12:00'), Date.parse('1984-01-01')]
   sheet << ['true', '11.85', '2050-01-01T12:00', '1984-01-01']

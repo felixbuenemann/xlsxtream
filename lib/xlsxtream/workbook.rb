@@ -68,7 +68,7 @@ module Xlsxtream
       columns = options.fetch(:columns, @options[:columns])
       sst = use_sst ? @sst : nil
 
-      name ||= "Sheet#{@worksheets.size + 1}"
+      name = name || options[:name] || "Sheet#{@worksheets.size + 1}"
       sheet_id = @worksheets[name]
       @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 

@@ -226,6 +226,16 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_worksheet_name_as_option
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |workbook|
+        workbook.write_worksheet(name: "foo")
+      end
+      expected = '<sheet name="foo" sheetId="1" r:id="rId1"/>'
+      actual = iow_spy['xl/workbook.xml'][/<sheet [^>]+>/]
+      assert_equal expected, actual
+    end
+
     def test_add_columns_via_workbook_options
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
