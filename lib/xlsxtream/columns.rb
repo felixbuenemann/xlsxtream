@@ -1,10 +1,7 @@
 # encoding: utf-8
-require "xlsxtream/xml"
 
 module Xlsxtream
   class Columns
-
-    ENCODING = Encoding.find('UTF-8')
 
     # Pass an Array of column options Hashes. Symbol Hash keys and associated
     # values are as follows:
