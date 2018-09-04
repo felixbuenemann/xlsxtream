@@ -106,18 +106,16 @@ Xlsxtream::Workbook.new(io, columns: [
 # Next change the font name and size
 # Write new datas in the file
 # Allow the file to be downloaded
-def export
-  tmp_file = Tempfile.new(["FileNameHere", ".xlsx"])
-  Xlsxtream::Workbook.open(tmp_file.path, font: { name: 'Arial', size: 11 }) do |xlsx|
-    xlsx.write_worksheet 'Sheet1' do |sheet|
-      sheet << ['Row A1', 'Row B1']
-	  sheet << ['Row A2', 'Row B2'] 
-	end 
-  end
+tmp_file = Tempfile.new(["FileNameHere", ".xlsx"])
+Xlsxtream::Workbook.open(tmp_file.path, font: { name: 'Arial', size: 11 }) do |xlsx|
+  xlsx.write_worksheet 'Sheet1' do |sheet|
+    sheet << ['Row A1', 'Row B1']
+    sheet << ['Row A2', 'Row B2'] 
+  end 
+end
   
-  send_file tmp_file,
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-end 
+send_file tmp_file,
+  type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 ```
 
 
