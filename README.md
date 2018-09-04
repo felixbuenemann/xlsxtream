@@ -101,6 +101,21 @@ Xlsxtream::Workbook.new(io, columns: [
 ])
 # The :columns option can also be given to write_worksheet, so it's
 # possible to have multiple worksheets with different column widths.
+
+# Create the .xlsx file in tmp_file
+# Next change the font name and size
+# Write new datas in the file
+# Allow the file to be downloaded
+tmp_file = Tempfile.new(["FileNameHere", ".xlsx"])
+Xlsxtream::Workbook.open(tmp_file.path, font: { name: 'Arial', size: 11 }) do |xlsx|
+  xlsx.write_worksheet 'Sheet1' do |sheet|
+    sheet << ['Row A1', 'Row B1']
+    sheet << ['Row A2', 'Row B2'] 
+  end 
+end
+  
+send_file tmp_file,
+  type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 ```
 
 
