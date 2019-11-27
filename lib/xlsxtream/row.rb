@@ -43,10 +43,12 @@ module Xlsxtream
           xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
         when TrueClass, FalseClass
           xml << %Q{<c r="#{cid}" t="b"><v>#{value ? 1 : 0}</v></c>}
-        when Time, DateTime
+        when Time
           xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
+        when DateTime
+          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{datetime_to_oa_date(value)}</v></c>}
         when Date
-          xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{date_to_oa_date(value)}</v></c>}
         else
           value = value.to_s
 
@@ -85,14 +87,22 @@ module Xlsxtream
       end
     end
 
-    # Converts Time objects to OLE Automation Date
+    # Converts Time instance to OLE Automation Date
     def time_to_oa_date(time)
-      time = time.to_time if time.respond_to?(:to_time)
-
       # Local dates are stored as UTC by truncating the offset:
       # 1970-01-01 00:00:00 +0200 => 1970-01-01 00:00:00 UTC
       # This is done because SpreadsheetML is not timezone aware.
-      (time + time.utc_offset).utc.to_f / 24 / 3600 + 25569
+      (time.to_f + time.utc_offset) / 86400 + 25569
+    end
+
+    # Converts DateTime instance to OLE Automation Date
+    def datetime_to_oa_date(date)
+      date.jd - 2415019 + (date.hour * 3600 + date.sec + date.sec_fraction.to_f) / 86400
+    end
+
+    # Converts Date instance to OLE Automation Date
+    def date_to_oa_date(date)
+      (date.jd - 2415019).to_f
     end
   end
 end
