@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0 (2019-11-27)
+
+- Allow usage with zip\_tricks 5.x gem (#38)
+
 ## 2.1.0 (2018-07-21)
 
 - New `:columns` option, allowing column widths to be specified (#25)
