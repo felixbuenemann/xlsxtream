@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0 (2019-11-27)
+
+- Speed up date / time conversion to OA format (#39)
+
 ## 2.2.0 (2019-11-27)
 
 - Allow usage with zip\_tricks 5.x gem (#38)
