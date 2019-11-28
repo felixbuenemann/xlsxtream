@@ -96,8 +96,15 @@ module Xlsxtream
     end
 
     # Converts DateTime instance to OLE Automation Date
-    def datetime_to_oa_date(date)
-      date.jd - 2415019 + (date.hour * 3600 + date.sec + date.sec_fraction.to_f) / 86400
+    if RUBY_ENGINE == 'ruby'
+      def datetime_to_oa_date(date)
+        _, jd, df, sf, of = date.marshal_dump
+        jd - 2415019 + (df + of + sf / 1e9) / 86400
+      end
+    else
+      def datetime_to_oa_date(date)
+        date.jd - 2415019 + (date.hour * 3600 + date.sec + date.sec_fraction.to_f) / 86400
+      end
     end
 
     # Converts Date instance to OLE Automation Date
