@@ -50,7 +50,7 @@ module Xlsxtream
     def test_workbook_with_sheet
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
-        wb.add_worksheet
+        wb.write_worksheet
       end
       expected = {
         'xl/worksheets/sheet1.xml' =>
@@ -80,10 +80,45 @@ module Xlsxtream
       end
     end
 
+    def test_workbook_with_sheet_without_block
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        ws = wb.add_worksheet
+        ws << ['foo']
+        ws.close
+      end
+      expected = {
+        'xl/worksheets/sheet1.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+            '<sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row></sheetData>' \
+          '</worksheet>',
+        'xl/workbook.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '\
+                    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' \
+            '<workbookPr date1904="false"/>' \
+            '<sheets>' \
+              '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' \
+            '</sheets>' \
+          '</workbook>',
+        'xl/_rels/workbook.xml.rels' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' \
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' \
+            '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' \
+          '</Relationships>'
+      }
+      actual = iow_spy
+      expected.keys.each do |path|
+        assert_equal expected[path], actual[path]
+      end
+    end
+
     def test_workbook_with_sst
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
-        wb.add_worksheet(nil, use_shared_strings: true) do |ws|
+        wb.write_worksheet(nil, use_shared_strings: true) do |ws|
           ws << ['foo']
         end
       end
@@ -239,7 +274,7 @@ module Xlsxtream
     def test_add_columns_via_workbook_options
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
-        wb.add_worksheet {}
+        wb.write_worksheet {}
       end
 
       expected = \
@@ -258,7 +293,7 @@ module Xlsxtream
     def test_add_columns_via_workbook_options_and_add_rows
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
-        wb.add_worksheet do |ws|
+        wb.write_worksheet do |ws|
           ws << ['foo']
           ws.add_row ['bar']
         end

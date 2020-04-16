@@ -58,7 +58,7 @@ module Xlsxtream
       @worksheets = Hash.new { |hash, name| hash[name] = hash.size + 1 }
     end
 
-    def write_worksheet(name = nil, options = {})
+    def add_worksheet(name = nil, options = {})
       if name.is_a? Hash and options.empty?
         options = name
         name = nil
@@ -72,13 +72,17 @@ module Xlsxtream
       sheet_id = @worksheets[name]
       @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@io, :sst => sst, :auto_format => auto_format, :columns => columns)
+      Worksheet.new(@io, :sst => sst, :auto_format => auto_format, :columns => columns)
+    end
+
+    def write_worksheet(*args)
+      worksheet = add_worksheet(*args)
+
       yield worksheet if block_given?
       worksheet.close
 
       nil
     end
-    alias_method :add_worksheet, :write_worksheet
 
     def close
       write_workbook

@@ -78,6 +78,13 @@ xlsx.write_worksheet(name: 'SheetWithAutoFormat', auto_format: true) do |sheet|
   sheet << ['true', '11.85', '2050-01-01T12:00', '1984-01-01']
 end
 
+# You can also create worksheet without using a block with `add_worksheet` method. 
+# Remember to manually close the worksheet when you are done.
+# It can be only used sequentially. Make sure you closed one worksheet before adding another one.
+worksheet = xls.add_worksheet(name: 'SheetWithoutBlock')
+worksheet << ['some', 'data']
+worksheet.close
+
 # Writes metadata and ZIP archive central directory
 xlsx.close
 # Close IO object
