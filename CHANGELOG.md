@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.0 (2020-04-25)
+
+- New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text
+
 ## 2.3.0 (2019-11-27)
 
 - Speed up date / time conversion to OA format (#39)
