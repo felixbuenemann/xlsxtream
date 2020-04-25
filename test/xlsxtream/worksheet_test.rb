@@ -72,7 +72,6 @@ module Xlsxtream
       assert_equal expected, io.string
     end
 
-
     def test_add_columns_via_worksheet_options
       io = StringIO.new
       ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
