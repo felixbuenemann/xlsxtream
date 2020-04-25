@@ -24,11 +24,16 @@ module Xlsxtream
       @rownum = rownum
       @sst = options[:sst]
       @auto_format = options[:auto_format]
+      @bold = options[:bold]
     end
 
     def to_xml
       column = String.new('A')
       xml = String.new(%Q{<row r="#{@rownum}">})
+
+      normal_style = @bold ? 3 : 0
+      date_style = @bold ? 4 : 1
+      time_style = @bold ? 5 : 2
 
       @row.each do |value|
         cid = "#{column}#{@rownum}"
@@ -40,15 +45,15 @@ module Xlsxtream
 
         case value
         when Numeric
-          xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
+          xml << %Q{<c r="#{cid}" s="#{normal_style}" t="n"><v>#{value}</v></c>}
         when TrueClass, FalseClass
-          xml << %Q{<c r="#{cid}" t="b"><v>#{value ? 1 : 0}</v></c>}
+          xml << %Q{<c r="#{cid}" s="#{normal_style}" t="b"><v>#{value ? 1 : 0}</v></c>}
         when Time
-          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}" s="#{time_style}"><v>#{time_to_oa_date(value)}</v></c>}
         when DateTime
-          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{datetime_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}" s="#{time_style}"><v>#{datetime_to_oa_date(value)}</v></c>}
         when Date
-          xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{date_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}" s="#{date_style}"><v>#{date_to_oa_date(value)}</v></c>}
         else
           value = value.to_s
 
@@ -56,9 +61,9 @@ module Xlsxtream
             value = value.encode(ENCODING) if value.encoding != ENCODING
 
             if @sst
-              xml << %Q{<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>}
+              xml << %Q{<c r="#{cid}" s="#{normal_style}" t="s"><v>#{@sst[value]}</v></c>}
             else
-              xml << %Q{<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
+              xml << %Q{<c r="#{cid}" s="#{normal_style}" t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
             end
           end
         end
