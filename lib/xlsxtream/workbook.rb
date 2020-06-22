@@ -58,27 +58,18 @@ module Xlsxtream
       @worksheets = Hash.new { |hash, name| hash[name] = hash.size + 1 }
     end
 
-    def write_worksheet(name = nil, options = {})
-      if name.is_a? Hash and options.empty?
-        options = name
-        name = nil
-      end
-      use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
-      auto_format = options.fetch(:auto_format, @options[:auto_format])
-      columns = options.fetch(:columns, @options[:columns])
-      sst = use_sst ? @sst : nil
+    def add_worksheet(*args)
+      build_worksheet(*args)
+    end
 
-      name = name || options[:name] || "Sheet#{@worksheets.size + 1}"
-      sheet_id = @worksheets[name]
-      @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
+    def write_worksheet(*args)
+      worksheet = build_worksheet(*args)
 
-      worksheet = Worksheet.new(@io, :sst => sst, :auto_format => auto_format, :columns => columns)
       yield worksheet if block_given?
       worksheet.close
 
       nil
     end
-    alias_method :add_worksheet, :write_worksheet
 
     def close
       write_workbook
@@ -93,6 +84,23 @@ module Xlsxtream
     end
 
     private
+    def build_worksheet(name = nil, options = {})
+      if name.is_a? Hash and options.empty?
+        options = name
+        name = nil
+      end
+
+      use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
+      auto_format = options.fetch(:auto_format, @options[:auto_format])
+      columns = options.fetch(:columns, @options[:columns])
+      sst = use_sst ? @sst : nil
+
+      name = name || options[:name] || "Sheet#{@worksheets.size + 1}"
+      sheet_id = @worksheets[name]
+      @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
+
+      Worksheet.new(@io, :sst => sst, :auto_format => auto_format, :columns => columns)
+    end
 
     def write_root_rels
       @io.add_file "_rels/.rels"
