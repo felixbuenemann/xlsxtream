@@ -7,7 +7,7 @@ module Xlsxtream
   class WorksheetTest < Minitest::Test
     def test_empty_worksheet
       io = StringIO.new
-      ws = Worksheet.new(io)
+      ws = Worksheet.new(io, 1, 'test')
       ws.close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
@@ -17,7 +17,7 @@ module Xlsxtream
 
     def test_add_row
       io = StringIO.new
-      ws = Worksheet.new(io)
+      ws = Worksheet.new(io, 1, 'test')
       ws << ['foo']
       ws.add_row ['bar']
       ws.close
@@ -33,7 +33,7 @@ module Xlsxtream
     def test_add_row_with_sst_option
       io = StringIO.new
       mock_sst = { 'foo' => 0 }
-      ws = Worksheet.new(io, :sst => mock_sst)
+      ws = Worksheet.new(io, 1, 'test', :sst => mock_sst)
       ws << ['foo']
       ws.close
       expected = \
@@ -46,7 +46,7 @@ module Xlsxtream
 
     def test_add_row_with_auto_format_option
       io = StringIO.new
-      ws = Worksheet.new(io, :auto_format => true)
+      ws = Worksheet.new(io, 1, 'test', :auto_format => true)
       ws << ['1.5']
       ws.close
       expected = \
@@ -59,7 +59,7 @@ module Xlsxtream
 
     def test_add_columns_via_worksheet_options
       io = StringIO.new
-      ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
+      ws = Worksheet.new(io, 1, 'test', { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
       ws.close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
@@ -74,7 +74,7 @@ module Xlsxtream
 
     def test_add_columns_via_worksheet_options_and_add_rows
       io = StringIO.new
-      ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
+      ws = Worksheet.new(io, 1, 'test', { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
       ws << ['foo']
       ws.add_row ['bar']
       ws.close
@@ -90,6 +90,16 @@ module Xlsxtream
           '<row r="2"><c r="A2" t="inlineStr"><is><t>bar</t></is></c></row>' \
         '</sheetData></worksheet>'
       assert_equal expected, io.string
+    end
+
+    def test_respond_to_id
+      ws = Worksheet.new(StringIO.new, 1, 'test')
+      assert_equal 1, ws.id
+    end
+
+    def test_respond_to_name
+      ws = Worksheet.new(StringIO.new, 1, 'test')
+      assert_equal 'test', ws.name
     end
   end
 end

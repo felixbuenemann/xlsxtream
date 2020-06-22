@@ -4,8 +4,12 @@ require "xlsxtream/row"
 
 module Xlsxtream
   class Worksheet
-    def initialize(io, options = {})
+    attr_reader :id, :name
+
+    def initialize(io, id, name, options = {})
       @io = io
+      @id = id
+      @name = name
       @rownum = 1
       @options = options
 
