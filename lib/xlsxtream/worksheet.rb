@@ -11,6 +11,7 @@ module Xlsxtream
       @id = id
       @name = name
       @rownum = 1
+      @closed = false
       @options = options
 
       write_header
@@ -24,6 +25,11 @@ module Xlsxtream
 
     def close
       write_footer
+      @closed = true
+    end
+
+    def closed?
+      @closed
     end
 
     private

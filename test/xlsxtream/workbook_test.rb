@@ -4,6 +4,7 @@ require 'stringio'
 require 'tempfile'
 require 'xlsxtream/workbook'
 require 'xlsxtream/io/hash'
+require 'xlsxtream/errors'
 
 module Xlsxtream
   class WorksheetTest < Minitest::Test
@@ -220,6 +221,23 @@ module Xlsxtream
       actual = iow_spy
       expected.keys.each do |path|
         assert_equal expected[path], actual[path]
+      end
+    end
+
+    def test_must_write_sequentially
+      iow_spy1 = io_wrapper_spy
+
+      Workbook.open(iow_spy1) do |wb|
+        wb.add_worksheet.tap { |ws| ws.close }
+        wb.add_worksheet.tap { |ws| ws.close }
+      end
+
+      iow_spy2 = io_wrapper_spy
+      assert_raises(Xlsxtream::Error) do
+        Workbook.open(iow_spy2) do |wb|
+          wb.add_worksheet
+          wb.add_worksheet # adding a second worksheet without closing
+        end
       end
     end
 

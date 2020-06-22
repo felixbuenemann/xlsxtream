@@ -59,6 +59,11 @@ module Xlsxtream
     end
 
     def add_worksheet(*args)
+
+      unless @worksheets.all? { |ws| ws.closed? }
+        fail Error, "Close the current worksheet before adding a new one"
+      end
+
       build_worksheet(*args)
     end
 
