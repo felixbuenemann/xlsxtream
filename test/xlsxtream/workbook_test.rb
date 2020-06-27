@@ -4,7 +4,6 @@ require 'stringio'
 require 'tempfile'
 require 'xlsxtream/workbook'
 require 'xlsxtream/io/hash'
-require 'xlsxtream/errors'
 
 module Xlsxtream
   class WorksheetTest < Minitest::Test
