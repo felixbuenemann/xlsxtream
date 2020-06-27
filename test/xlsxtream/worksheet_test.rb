@@ -91,5 +91,15 @@ module Xlsxtream
         '</sheetData></worksheet>'
       assert_equal expected, io.string
     end
+
+    def test_respond_to_id
+      ws = Worksheet.new(StringIO.new, id: 1)
+      assert_equal 1, ws.id
+    end
+
+    def test_respond_to_name
+      ws = Worksheet.new(StringIO.new, name: 'test')
+      assert_equal 'test', ws.name
+    end
   end
 end

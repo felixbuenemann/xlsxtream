@@ -55,30 +55,32 @@ module Xlsxtream
         @io = IO::ZipTricks.new(output)
       end
       @sst = SharedStringTable.new
-      @worksheets = Hash.new { |hash, name| hash[name] = hash.size + 1 }
+      @worksheets = []
     end
 
-    def write_worksheet(name = nil, options = {})
-      if name.is_a? Hash and options.empty?
-        options = name
-        name = nil
+    def add_worksheet(*args, &block)
+      if block_given?
+        # This method used to be an alias for `write_worksheet`. This was never publicly documented,
+        # but to avoid breaking this private API we keep the old behaviour when called with a block.
+        Kernel.warn "#{caller.first[/.*:\d+:(?=in `)/]} warning: Calling #{self.class}#add_worksheet with a block is deprecated, use #write_worksheet instead."
+        return write_worksheet(*args, &block)
       end
-      use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
-      auto_format = options.fetch(:auto_format, @options[:auto_format])
-      columns = options.fetch(:columns, @options[:columns])
-      sst = use_sst ? @sst : nil
 
-      name = name || options[:name] || "Sheet#{@worksheets.size + 1}"
-      sheet_id = @worksheets[name]
-      @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
+      unless @worksheets.all? { |ws| ws.closed? }
+        fail Error, "Close the current worksheet before adding a new one"
+      end
 
-      worksheet = Worksheet.new(@io, :sst => sst, :auto_format => auto_format, :columns => columns)
+      build_worksheet(*args)
+    end
+
+    def write_worksheet(*args)
+      worksheet = build_worksheet(*args)
+
       yield worksheet if block_given?
       worksheet.close
 
       nil
     end
-    alias_method :add_worksheet, :write_worksheet
 
     def close
       write_workbook
@@ -93,6 +95,27 @@ module Xlsxtream
     end
 
     private
+    def build_worksheet(name = nil, options = {})
+      if name.is_a? Hash and options.empty?
+        options = name
+        name = nil
+      end
+
+      use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
+      auto_format = options.fetch(:auto_format, @options[:auto_format])
+      columns = options.fetch(:columns, @options[:columns])
+      sst = use_sst ? @sst : nil
+
+      sheet_id = @worksheets.size + 1
+      name = name || options[:name] || "Sheet#{sheet_id}"
+
+      @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
+
+      worksheet = Worksheet.new(@io, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns)
+      @worksheets << worksheet
+
+      worksheet
+    end
 
     def write_root_rels
       @io.add_file "_rels/.rels"
@@ -113,8 +136,8 @@ module Xlsxtream
           <workbookPr date1904="false"/>
           <sheets>
       XML
-      @worksheets.each do |name, sheet_id|
-        @io << %'<sheet name="#{XML.escape_attr name}" sheetId="#{sheet_id}" r:id="#{rid.next!}"/>'
+      @worksheets.each do |worksheet|
+        @io << %'<sheet name="#{XML.escape_attr worksheet.name}" sheetId="#{worksheet.id}" r:id="#{rid.next!}"/>'
       end
       @io << XML.strip(<<-XML)
           </sheets>
@@ -189,8 +212,8 @@ module Xlsxtream
       @io.add_file "xl/_rels/workbook.xml.rels"
       @io << XML.header
       @io << '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-      @worksheets.each do |name, sheet_id|
-        @io << %'<Relationship Id="#{rid.next!}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet#{sheet_id}.xml"/>'
+      @worksheets.each do |worksheet|
+        @io << %'<Relationship Id="#{rid.next!}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet#{worksheet.id}.xml"/>'
       end
       @io << %'<Relationship Id="#{rid.next!}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
       @io << %'<Relationship Id="#{rid.next!}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>' unless @sst.empty?
@@ -208,8 +231,8 @@ module Xlsxtream
           <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
       XML
       @io << '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>' unless @sst.empty?
-      @worksheets.each_value do |sheet_id|
-        @io << %'<Override PartName="/xl/worksheets/sheet#{sheet_id}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+      @worksheets.each do |worksheet|
+        @io << %'<Override PartName="/xl/worksheets/sheet#{worksheet.id}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
       end
       @io << '</Types>'
     end

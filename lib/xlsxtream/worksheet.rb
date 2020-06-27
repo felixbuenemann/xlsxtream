@@ -7,6 +7,7 @@ module Xlsxtream
     def initialize(io, options = {})
       @io = io
       @rownum = 1
+      @closed = false
       @options = options
 
       write_header
@@ -20,6 +21,19 @@ module Xlsxtream
 
     def close
       write_footer
+      @closed = true
+    end
+
+    def closed?
+      @closed
+    end
+
+    def id
+      @options[:id]
+    end
+
+    def name
+      @options[:name]
     end
 
     private
