@@ -113,7 +113,7 @@ module Xlsxtream
 
       @io.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@io, sheet_id, name, :sst => sst, :auto_format => auto_format, :columns => columns)
+      worksheet = Worksheet.new(@io, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns)
       @worksheets << worksheet
 
       worksheet

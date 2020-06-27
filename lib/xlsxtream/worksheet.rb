@@ -4,12 +4,8 @@ require "xlsxtream/row"
 
 module Xlsxtream
   class Worksheet
-    attr_reader :id, :name
-
-    def initialize(io, id, name, options = {})
+    def initialize(io, options = {})
       @io = io
-      @id = id
-      @name = name
       @rownum = 1
       @closed = false
       @options = options
@@ -30,6 +26,14 @@ module Xlsxtream
 
     def closed?
       @closed
+    end
+
+    def id
+      @options[:id]
+    end
+
+    def name
+      @options[:name]
     end
 
     private
