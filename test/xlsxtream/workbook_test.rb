@@ -84,7 +84,9 @@ module Xlsxtream
     def test_deprecated_add_workbook_with_block
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
-        wb.add_worksheet {}
+        silence_warnings do
+          wb.add_worksheet {}
+        end
       end
       expected = {
         'xl/worksheets/sheet1.xml' =>
@@ -481,6 +483,13 @@ module Xlsxtream
 
     def io_wrapper_spy
       IO::Hash.new(StringIO.new)
+    end
+
+    def silence_warnings
+      old_verbose, $VERBOSE = $VERBOSE, nil
+      yield
+    ensure
+      $VERBOSE = old_verbose
     end
 
   end
