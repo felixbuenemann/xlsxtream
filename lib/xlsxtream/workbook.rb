@@ -58,12 +58,12 @@ module Xlsxtream
       @worksheets = []
     end
 
-    def add_worksheet(*args)
+    def add_worksheet(*args, &block)
       if block_given?
         # This method used to be an alias for `write_worksheet`. This was never publicly documented,
         # but to avoid breaking this private API we keep the old behaviour when called with a block.
         if defined?(Warning) # Warning doesn't exist in ruby < 2.4
-          Warning.warn "Use #write_worksheet to pass a block, passing a block to add_worksheet is deprecated"
+          Warning.warn "#{caller.first}: Use #write_worksheet to pass a block, passing a block to add_worksheet is deprecated."
         end
         return write_worksheet(*args, &block)
       end

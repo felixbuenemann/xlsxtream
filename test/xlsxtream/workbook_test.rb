@@ -81,6 +81,39 @@ module Xlsxtream
       end
     end
 
+    def test_deprecated_add_workbook_with_block
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        wb.add_worksheet {}
+      end
+      expected = {
+        'xl/worksheets/sheet1.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+            '<sheetData></sheetData>' \
+          '</worksheet>',
+        'xl/workbook.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '\
+                    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' \
+            '<workbookPr date1904="false"/>' \
+            '<sheets>' \
+              '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' \
+            '</sheets>' \
+          '</workbook>',
+        'xl/_rels/workbook.xml.rels' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' \
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' \
+            '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' \
+          '</Relationships>'
+      }
+      actual = iow_spy
+      expected.keys.each do |path|
+        assert_equal expected[path], actual[path]
+      end
+    end
+
     def test_workbook_with_sheet_without_block
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
