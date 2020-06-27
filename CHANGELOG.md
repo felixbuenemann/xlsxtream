@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0 (2020-06-27)
+
+- Allow writing worksheets without a block using add\_worksheet (#42, #45)
+- Deprecate calling add\_worksheet with a block, use write\_worksheet instead (#45)
+- Relax rubyzip development dependency to allow current version (#46)
+
 ## 2.3.0 (2019-11-27)
 
 - Speed up date / time conversion to OA format (#39)
