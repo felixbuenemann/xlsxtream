@@ -10,7 +10,7 @@ low memory usage.
 
 Xlsxtream does not support formatting, charts, comments and a myriad of
 other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features. If you are looking for a
-fully featured solution take a look at [axslx](https://github.com/randym/axlsx).
+fully featured solution take a look at [caxslx](https://github.com/caxlsx/caxlsx).
 
 Xlsxtream supports writing to files or IO-like objects, data is flushed as the ZIP compressor sees fit.
 
