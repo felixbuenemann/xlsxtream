@@ -9,6 +9,7 @@ module Xlsxtream
       @rownum = 1
       @closed = false
       @options = options
+      @xml_merge_cells = nil
 
       write_header
     end
@@ -18,6 +19,18 @@ module Xlsxtream
       @rownum += 1
     end
     alias_method :add_row, :<<
+    
+    # refs: ['A1:B1', 'C1:G1', 'A2:G2', ...]
+    def merge_cells(refs)
+      xml = String.new(%Q{<mergeCells r="#{refs.length}">})
+
+      refs.each do |ref|
+        xml << %Q{<mergeCell ref="#{ref}"/>}
+      end
+
+      xml << '</mergeCells>'
+      @xml_merge_cells = xml
+    end
 
     def close
       write_footer
@@ -57,6 +70,7 @@ module Xlsxtream
     def write_footer
       @io << XML.strip(<<-XML)
           </sheetData>
+          #{@xml_merge_cells}
         </worksheet>
       XML
     end

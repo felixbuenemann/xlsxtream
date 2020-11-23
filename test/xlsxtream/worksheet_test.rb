@@ -101,5 +101,27 @@ module Xlsxtream
       ws = Worksheet.new(StringIO.new, name: 'test')
       assert_equal 'test', ws.name
     end
+    
+    def test_with_merge_cells
+      io = StringIO.new
+      ws = Worksheet.new(io)
+      ws << ['foo']
+      ws.add_row ['bar']
+      ws.add_row ['foobar']
+      ws.merge_cells(['A1:B1', 'A3:B3'])
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row>' \
+          '<row r="2"><c r="A2" t="inlineStr"><is><t>bar</t></is></c></row>' \
+          '<row r="3"><c r="A3" t="inlineStr"><is><t>foobar</t></is></c></row>' \
+        '</sheetData>' \
+        '<mergeCells r="2">' \
+          '<mergeCell ref="A1:B1"/>' \
+          '<mergeCell ref="A3:B3"/>' \
+        '</mergeCells></worksheet>'
+      assert_equal expected, io.string
+    end
   end
 end
