@@ -10,7 +10,7 @@ low memory usage.
 
 Xlsxtream does not support formatting, charts, comments and a myriad of
 other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features. If you are looking for a
-fully featured solution take a look at [axslx](https://github.com/randym/axlsx).
+fully featured solution take a look at [caxslx](https://github.com/caxlsx/caxlsx).
 
 Xlsxtream supports writing to files or IO-like objects, data is flushed as the ZIP compressor sees fit.
 
@@ -57,6 +57,12 @@ xlsx.write_worksheet 'AppendixSheet' do |sheet|
   sheet.add_row [Time.now, 'Time-machine']
 end
 
+# Output the first row as a header line using bold text
+xls.write_worksheet 'Sheet1' do |sheet|
+  sheet.add_header_row ['headers', 'in', 'bold']
+  sheet << ['first', 'normal', 'row']
+end
+
 # If you have highly repetitive data, you can enable Shared String Tables (SST)
 # for the workbook or a single worksheet. The SST has to be kept in memory,
 # so do not use it if you have a huge amount of rows or a little duplication
@@ -78,6 +84,13 @@ xlsx.write_worksheet(name: 'SheetWithAutoFormat', auto_format: true) do |sheet|
   sheet << ['true', '11.85', '2050-01-01T12:00', '1984-01-01']
 end
 
+# You can also create worksheet without a block, using the `add_worksheet` method.
+# It can be only used sequentially, so remember to manually close the worksheet
+# when you are done (before opening a new one).
+worksheet = xls.add_worksheet(name: 'SheetWithoutBlock')
+worksheet << ['some', 'data']
+worksheet.close
+
 # Writes metadata and ZIP archive central directory
 xlsx.close
 # Close IO object
@@ -89,9 +102,6 @@ Xlsxtream::Workbook.new(io, font: {
   size: 10, # size in pt
   family: 'Roman' # Swiss, Modern, Script, Decorative
 })
-
-# Treat the first output row as a header, using bold and centred text
-Xlsxtream::Workbook.new(io, has_header_row: true)
 
 # Specifying column widths in pixels or characters; 3 column example;
 # "pixel" widths appear to be *relative* to an assumed 11pt Calibri

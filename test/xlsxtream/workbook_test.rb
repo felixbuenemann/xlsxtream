@@ -50,7 +50,7 @@ module Xlsxtream
     def test_workbook_with_sheet
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
-        wb.add_worksheet
+        wb.write_worksheet
       end
       expected = {
         'xl/worksheets/sheet1.xml' =>
@@ -80,10 +80,80 @@ module Xlsxtream
       end
     end
 
+    def test_deprecated_add_workbook_with_block
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        silence_warnings do
+          wb.add_worksheet {}
+        end
+      end
+      expected = {
+        'xl/worksheets/sheet1.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+            '<sheetData></sheetData>' \
+          '</worksheet>',
+        'xl/workbook.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '\
+                    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' \
+            '<workbookPr date1904="false"/>' \
+            '<sheets>' \
+              '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' \
+            '</sheets>' \
+          '</workbook>',
+        'xl/_rels/workbook.xml.rels' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' \
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' \
+            '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' \
+          '</Relationships>'
+      }
+      actual = iow_spy
+      expected.keys.each do |path|
+        assert_equal expected[path], actual[path]
+      end
+    end
+
+    def test_workbook_with_sheet_without_block
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        ws = wb.add_worksheet
+        ws << ['foo']
+        ws.close
+      end
+      expected = {
+        'xl/worksheets/sheet1.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+            '<sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row></sheetData>' \
+          '</worksheet>',
+        'xl/workbook.xml' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '\
+                    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' \
+            '<workbookPr date1904="false"/>' \
+            '<sheets>' \
+              '<sheet name="Sheet1" sheetId="1" r:id="rId1"/>' \
+            '</sheets>' \
+          '</workbook>',
+        'xl/_rels/workbook.xml.rels' =>
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+          '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' \
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' \
+            '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' \
+          '</Relationships>'
+      }
+      actual = iow_spy
+      expected.keys.each do |path|
+        assert_equal expected[path], actual[path]
+      end
+    end
+
     def test_workbook_with_sst
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
-        wb.add_worksheet(nil, use_shared_strings: true) do |ws|
+        wb.write_worksheet(nil, use_shared_strings: true) do |ws|
           ws << ['foo']
         end
       end
@@ -188,6 +258,23 @@ module Xlsxtream
       end
     end
 
+    def test_must_write_sequentially
+      iow_spy1 = io_wrapper_spy
+
+      Workbook.open(iow_spy1) do |wb|
+        wb.add_worksheet.tap { |ws| ws.close }
+        wb.add_worksheet.tap { |ws| ws.close }
+      end
+
+      iow_spy2 = io_wrapper_spy
+      assert_raises(Xlsxtream::Error) do
+        Workbook.open(iow_spy2) do |wb|
+          wb.add_worksheet
+          wb.add_worksheet # adding a second worksheet without closing
+        end
+      end
+    end
+
     def test_write_named_worksheet
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) do |wb|
@@ -239,7 +326,7 @@ module Xlsxtream
     def test_add_columns_via_workbook_options
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
-        wb.add_worksheet {}
+        wb.write_worksheet {}
       end
 
       expected = \
@@ -257,8 +344,8 @@ module Xlsxtream
 
     def test_add_columns_via_workbook_options_and_add_rows
       iow_spy = io_wrapper_spy
-      Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ], :has_header_row => true } ) do |wb|
-        wb.add_worksheet do |ws|
+      Workbook.open(iow_spy, { :columns => [ {}, {}, { :width_pixels => 42 } ] } ) do |wb|
+        wb.write_worksheet do |ws|
           ws << ['foo']
           ws.add_row ['bar']
         end
@@ -272,8 +359,31 @@ module Xlsxtream
           '<col min="3" max="3" width="42" customWidth="1"/>' \
         '</cols>' \
         '<sheetData>' \
-          '<row r="1"><c r="A1" s="3" t="inlineStr"><is><t>foo</t></is></c></row>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row>' \
           '<row r="2"><c r="A2" t="inlineStr"><is><t>bar</t></is></c></row>' \
+        '</sheetData></worksheet>'
+
+      actual = iow_spy['xl/worksheets/sheet1.xml']
+      assert_equal expected, actual
+    end
+
+    def test_add_header_row
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        wb.write_worksheet(headers: ['foo']) do |ws|
+          ws << ['foo']
+          ws.add_header_row ['bar'] # It's usually used as first row, but doesn't have to be
+          ws.add_row ['baz']
+        end
+      end
+
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+        '<sheetData>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row>' \
+          '<row r="2"><c r="A2" s="3" t="inlineStr"><is><t>bar</t></is></c></row>' \
+          '<row r="3"><c r="A3" t="inlineStr"><is><t>baz</t></is></c></row>' \
         '</sheetData></worksheet>'
 
       actual = iow_spy['xl/worksheets/sheet1.xml']
@@ -322,13 +432,13 @@ module Xlsxtream
             '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
             '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
             '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1">' \
-              '<alignment horizontal="center" vertical="center"/>' \
+              '<alignment vertical="center"/>' \
             '</xf>' \
             '<xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
-              '<alignment horizontal="center" vertical="center"/>' \
+              '<alignment vertical="center"/>' \
             '</xf>' \
             '<xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
-              '<alignment horizontal="center" vertical="center"/>' \
+              '<alignment vertical="center"/>' \
             '</xf>' \
           '</cellXfs>' \
           '<cellStyles count="1">' \
@@ -410,6 +520,13 @@ module Xlsxtream
 
     def io_wrapper_spy
       IO::Hash.new(StringIO.new)
+    end
+
+    def silence_warnings
+      old_verbose, $VERBOSE = $VERBOSE, nil
+      yield
+    ensure
+      $VERBOSE = old_verbose
     end
 
   end

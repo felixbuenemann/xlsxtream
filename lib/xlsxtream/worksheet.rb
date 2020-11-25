@@ -7,21 +7,38 @@ module Xlsxtream
     def initialize(io, options = {})
       @io = io
       @rownum = 1
+      @closed = false
       @options = options
-      @has_header_row = options.delete(:has_header_row)
 
       write_header
     end
 
     def <<(row)
-      options = @has_header_row && @rownum == 1 ? @options.merge(:is_header => true) : @options
-      @io << Row.new(row, @rownum, options).to_xml
+      @io << Row.new(row, @rownum, @options).to_xml
       @rownum += 1
     end
     alias_method :add_row, :<<
 
+    def add_header_row(row)
+      @io << HeaderRow.new(row, @rownum, @options).to_xml
+      @rownum += 1
+    end
+
     def close
       write_footer
+      @closed = true
+    end
+
+    def closed?
+      @closed
+    end
+
+    def id
+      @options[:id]
+    end
+
+    def name
+      @options[:name]
     end
 
     private

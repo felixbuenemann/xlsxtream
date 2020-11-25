@@ -1,8 +1,14 @@
 # Changelog
 
-## 2.4.0 (2020-04-25)
+## 2.5.0 (2020-11-26)
 
-- New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text
+- New `:add_header_row` method in Worksheet, which outputs as a row as bold text, intended for header rows
+
+## 2.4.0 (2020-06-27)
+
+- Allow writing worksheets without a block using add\_worksheet (#42, #45)
+- Deprecate calling add\_worksheet with a block, use write\_worksheet instead (#45)
+- Relax rubyzip development dependency to allow current version (#46)
 
 ## 2.3.0 (2019-11-27)
 

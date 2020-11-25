@@ -57,21 +57,6 @@ module Xlsxtream
       assert_equal expected, io.string
     end
 
-    def test_add_row_with_has_header_row_option
-      io = StringIO.new
-      ws = Worksheet.new(io, :has_header_row => true)
-      ws << ['header']
-      ws.add_row ['not header']
-      ws.close
-      expected = \
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
-        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' \
-          '<row r="1"><c r="A1" s="3" t="inlineStr"><is><t>header</t></is></c></row>' \
-          '<row r="2"><c r="A2" t="inlineStr"><is><t>not header</t></is></c></row>' \
-        '</sheetData></worksheet>'
-      assert_equal expected, io.string
-    end
-
     def test_add_columns_via_worksheet_options
       io = StringIO.new
       ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
@@ -105,6 +90,16 @@ module Xlsxtream
           '<row r="2"><c r="A2" t="inlineStr"><is><t>bar</t></is></c></row>' \
         '</sheetData></worksheet>'
       assert_equal expected, io.string
+    end
+
+    def test_respond_to_id
+      ws = Worksheet.new(StringIO.new, id: 1)
+      assert_equal 1, ws.id
+    end
+
+    def test_respond_to_name
+      ws = Worksheet.new(StringIO.new, name: 'test')
+      assert_equal 'test', ws.name
     end
   end
 end
