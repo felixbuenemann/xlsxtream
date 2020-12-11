@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "date"
 require "xlsxtream/xml"
 
@@ -13,15 +14,20 @@ module Xlsxtream
     # ISO 8601 yyyy-mm-ddThh:mm:ss(.s)(Z|+hh:mm|-hh:mm)
     TIME_PATTERN = /\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,9})?)?(?:Z|[+-][0-9]{2}:[0-9]{2})?\z/.freeze
 
-    TRUE_STRING = 'true'.freeze
-    FALSE_STRING = 'false'.freeze
+    TRUE_STRING = 'true'
+    FALSE_STRING = 'false'
+    GENERIC_STRING_TYPE = 'str' # can be used for cells containing formulas
+    SHARED_STRING_TYPE = 's' # used only for shared strings
+    INLINE_STRING_TYPE = 'inlineStr' # without formulas, can be of rich text format
+    NUMERIC_TYPE = 'n'
+    BOOLEAN_TYPE = 'b'
+    V_WRAPPER   = ->(text) { "<v>#{text}</v>" }
+    IST_WRAPPER = ->(text) { "<is><t>#{text}</t></is>" }
 
-    DATE_STYLE = 1
-    TIME_STYLE = 2
-
-    def initialize(row, rownum, options = {})
+    def initialize(row, rownum, workbook, options = {})
       @row = row
       @rownum = rownum
+      @stylesheet = workbook.stylesheet
       @sst = options[:sst]
       @auto_format = options[:auto_format]
     end
@@ -34,40 +40,68 @@ module Xlsxtream
         cid = "#{column}#{@rownum}"
         column.next!
 
-        if @auto_format && value.is_a?(String)
-          value = auto_format(value)
-        end
+        value = auto_format(value) if @auto_format && value.is_a?(String)
+        content, type = prepare_cell_content_and_resolve_type(value)
 
-        case value
-        when Numeric
-          xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
-        when TrueClass, FalseClass
-          xml << %Q{<c r="#{cid}" t="b"><v>#{value ? 1 : 0}</v></c>}
-        when Time
-          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
-        when DateTime
-          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{datetime_to_oa_date(value)}</v></c>}
-        when Date
-          xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{date_to_oa_date(value)}</v></c>}
-        else
-          value = value.to_s
+        # no xml output for empty non-styled strings
+        next if content.nil? && !(value.respond_to?(:styled?) && value.styled?)
 
-          unless value.empty? # no xml output for for empty strings
-            value = value.encode(ENCODING) if value.encoding != ENCODING
+        style = resolve_cell_style(value)
 
-            if @sst
-              xml << %Q{<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>}
-            else
-              xml << %Q{<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
-            end
-          end
-        end
+        # The code below renders a single XML cell.
+        #
+        # As Xlsxtream library is optimized for performance and memory, it was decided to keep
+        # the cell rendering logic here and not in the `Cell` class despite OOP standards encourage
+        # otherwise. This is to avoid unnecessary memory allocations in case of low share of
+        # non-styled cell content (with no need to use `Cell` wrapper).
+        xml << %{<c r="#{cid}"}
+        xml << %{ t="#{type}"} if type
+        xml << %{ s="#{style}"} if style
+        xml << '>'
+        xml << (type == INLINE_STRING_TYPE ? IST_WRAPPER : V_WRAPPER)[content]
+        xml << '</c>'
       end
 
       xml << '</row>'
     end
 
     private
+
+    def prepare_cell_content_and_resolve_type(value)
+      case value
+      when Numeric
+        [value, NUMERIC_TYPE]
+      when TrueClass, FalseClass
+        [(value ? 1 : 0), BOOLEAN_TYPE]
+      when Time
+        [time_to_oa_date(value), nil]
+      when DateTime
+        [datetime_to_oa_date(value), nil]
+      when Date
+        [date_to_oa_date(value), nil]
+      when Cell
+        prepare_cell_content_and_resolve_type(value.content)
+      else
+        value = value.to_s
+        return [nil, nil] if value.empty?
+
+        value = value.encode(ENCODING) if value.encoding != ENCODING
+
+        if @sst
+          [@sst[value], SHARED_STRING_TYPE]
+        else
+          [XML.escape_value(value), INLINE_STRING_TYPE]
+        end
+      end
+    end
+
+    def resolve_cell_style(value)
+      case value
+      when Time, DateTime then @stylesheet.datetime_style_id
+      when Date           then @stylesheet.date_style_id
+      when Cell           then @stylesheet.style_id(value)
+      end
+    end
 
     # Detects and casts numbers, date, time in text
     def auto_format(value)

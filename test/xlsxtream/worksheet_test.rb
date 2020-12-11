@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 require 'test_helper'
 require 'stringio'
+require 'xlsxtream/workbook'
 require 'xlsxtream/worksheet'
 
 module Xlsxtream
   class WorksheetTest < Minitest::Test
     def test_empty_worksheet
       io = StringIO.new
-      ws = Worksheet.new(io)
+      ws = Worksheet.new(mock_workbook(io))
       ws.close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
@@ -17,7 +18,7 @@ module Xlsxtream
 
     def test_add_row
       io = StringIO.new
-      ws = Worksheet.new(io)
+      ws = Worksheet.new(mock_workbook(io))
       ws << ['foo']
       ws.add_row ['bar']
       ws.close
@@ -33,7 +34,7 @@ module Xlsxtream
     def test_add_row_with_sst_option
       io = StringIO.new
       mock_sst = { 'foo' => 0 }
-      ws = Worksheet.new(io, :sst => mock_sst)
+      ws = Worksheet.new(mock_workbook(io), :sst => mock_sst)
       ws << ['foo']
       ws.close
       expected = \
@@ -46,7 +47,7 @@ module Xlsxtream
 
     def test_add_row_with_auto_format_option
       io = StringIO.new
-      ws = Worksheet.new(io, :auto_format => true)
+      ws = Worksheet.new(mock_workbook(io), :auto_format => true)
       ws << ['1.5']
       ws.close
       expected = \
@@ -59,7 +60,7 @@ module Xlsxtream
 
     def test_add_columns_via_worksheet_options
       io = StringIO.new
-      ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
+      ws = Worksheet.new(mock_workbook(io), { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
       ws.close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
@@ -74,7 +75,7 @@ module Xlsxtream
 
     def test_add_columns_via_worksheet_options_and_add_rows
       io = StringIO.new
-      ws = Worksheet.new(io, { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
+      ws = Worksheet.new(mock_workbook(io), { :columns => [ {}, {}, { :width_pixels => 42 } ] } )
       ws << ['foo']
       ws.add_row ['bar']
       ws.close
@@ -93,13 +94,24 @@ module Xlsxtream
     end
 
     def test_respond_to_id
-      ws = Worksheet.new(StringIO.new, id: 1)
+      ws = Worksheet.new(mock_workbook, id: 1)
       assert_equal 1, ws.id
     end
 
     def test_respond_to_name
-      ws = Worksheet.new(StringIO.new, name: 'test')
+      ws = Worksheet.new(mock_workbook, name: 'test')
       assert_equal 'test', ws.name
+    end
+
+    private
+
+    def mock_workbook(io = StringIO.new)
+      ss = Styles::Stylesheet.new
+
+      Minitest::Mock.new
+        .expect(:io, io)
+        .expect(:stylesheet, ss)
+        .expect(:stylesheet, ss)
     end
   end
 end

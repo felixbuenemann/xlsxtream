@@ -384,24 +384,20 @@ module Xlsxtream
               '<family val="2"/>' \
             '</font>' \
           '</fonts>' \
-          '<fills count="2">' \
+          '<fills count="1">' \
             '<fill>' \
-              '<patternFill patternType="none"/>' \
-            '</fill>' \
-            '<fill>' \
-              '<patternFill patternType="gray125"/>' \
             '</fill>' \
           '</fills>' \
           '<borders count="1">' \
             '<border/>' \
           '</borders>' \
           '<cellStyleXfs count="1">' \
-            '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>' \
+            '<xf xfId="0" numFmtId="0" fontId="0" fillId="0" borderId="0"/>' \
           '</cellStyleXfs>' \
           '<cellXfs count="3">' \
-            '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' \
-            '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
-            '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
+            '<xf xfId="0" numFmtId="0" fontId="0" fillId="0" borderId="0"/>' \
+            '<xf xfId="0" numFmtId="164" fontId="0" fillId="0" borderId="0" applyNumberFormat="1"/>' \
+            '<xf xfId="0" numFmtId="165" fontId="0" fillId="0" borderId="0" applyNumberFormat="1"/>' \
           '</cellXfs>' \
           '<cellStyles count="1">' \
             '<cellStyle name="Normal" xfId="0" builtinId="0"/>' \
@@ -415,8 +411,8 @@ module Xlsxtream
 
     def test_custom_font_size
       iow_spy = io_wrapper_spy
-      font_options = { :size => 23 }
-      Workbook.open(iow_spy, :font => font_options) {}
+      font_options = { size: 23 }
+      Workbook.open(iow_spy, font: font_options) {}
       expected = '<sz val="23"/>'
       actual = iow_spy['xl/styles.xml'][/<sz [^>]+>/]
       assert_equal expected, actual

@@ -8,8 +8,8 @@ deduplication via a shared string table (SST). Its purpose is to replace CSV for
 CSV in Excel is very buggy and error prone. It's very efficient and can quickly write millions of rows with
 low memory usage.
 
-Xlsxtream does not support formatting, charts, comments and a myriad of
-other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features. If you are looking for a
+Xlsxtream supports some basic cell styling, fonts and bordering. However if you fancy charts, comments and a myriad of
+other [OOXML](https://en.wikipedia.org/wiki/Office_Open_XML) features it might be worth looking for a
 fully featured solution take a look at [caxslx](https://github.com/caxlsx/caxlsx).
 
 Xlsxtream supports writing to files or IO-like objects, data is flushed as the ZIP compressor sees fit.
@@ -55,6 +55,13 @@ xlsx.write_worksheet 'AppendixSheet' do |sheet|
   sheet.add_row ['Timestamp', 'Comment']
   sheet.add_row [Time.now, 'Good times']
   sheet.add_row [Time.now, 'Time-machine']
+end
+
+# Individual cells can be styled
+# It does not impact performance or file size
+xlsx.write_worksheet 'Styled sheet' do |sheet|
+  sheet << [Cell.new('in red fill', fill: { color: 'FF0000' }), 'no style here']
+  sheet << [Cell.new('font style', font: { bold: true, italic: true })]
 end
 
 # If you have highly repetitive data, you can enable Shared String Tables (SST)
