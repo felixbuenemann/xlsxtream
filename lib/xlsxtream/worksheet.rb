@@ -4,8 +4,9 @@ require "xlsxtream/row"
 
 module Xlsxtream
   class Worksheet
-    def initialize(io, options = {})
-      @io = io
+    def initialize(workbook, options = {})
+      @workbook = workbook
+      @io = workbook.io
       @rownum = 1
       @closed = false
       @options = options
@@ -14,7 +15,7 @@ module Xlsxtream
     end
 
     def <<(row)
-      @io << Row.new(row, @rownum, @options).to_xml
+      @io << Row.new(row, @rownum, @workbook, @options).to_xml
       @rownum += 1
     end
     alias_method :add_row, :<<
