@@ -115,14 +115,10 @@ Xlsxtream::Workbook.new(io, columns: [
 
 The current version of Xlsxtream requires at least Ruby 2.1.0.
 
-If you are using an older Ruby version you can use the following in your Gemfile:
+If you are using an older Ruby version you can specify an older version of this gem in your Gemfile.
 
-```ruby
-gem 'xlsxtream', '< 2'
-```
-
-* The last version with support for Ruby 1.9.1 is 1.2.0.
-* The last version with support for Ruby 1.9.2 is 1.3.2.
+Check the earlier tags for this project, or the changelog, to find the version of Xlsxtream
+that matches the ruby version you are running.
 
 ## Upgrading
 
