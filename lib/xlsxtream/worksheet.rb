@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require "xlsxtream/xml"
 require "xlsxtream/row"
+require "xlsxtream/header_row"
 
 module Xlsxtream
   class Worksheet
@@ -14,13 +15,13 @@ module Xlsxtream
     end
 
     def <<(row)
-      @io << Xlsxtream::Row.new(row, @rownum, @options).to_xml
+      @io << Row.new(row, @rownum, @options).to_xml
       @rownum += 1
     end
     alias_method :add_row, :<<
 
     def add_header_row(row)
-      @io << Xlsxtream::HeaderRow.new(row, @rownum, @options).to_xml
+      @io << HeaderRow.new(row, @rownum, @options).to_xml
       @rownum += 1
     end
 
@@ -51,7 +52,7 @@ module Xlsxtream
 
       columns = Array(@options[:columns])
       unless columns.empty?
-        @io << Xlsxtream::Columns.new(columns).to_xml
+        @io << Columns.new(columns).to_xml
       end
 
       @io << XML.strip(<<-XML)
