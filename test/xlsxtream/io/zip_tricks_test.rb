@@ -23,24 +23,11 @@ module Xlsxtream
       zip_buf.rewind
 
       file_contents = {}
-
-      # https://github.com/WeTransfer/zip_tricks/issues/65
-      # https://github.com/rubyzip/rubyzip/issues/216
-      #
-      # Error appears to be spurious and not related to this implementation;
-      # it happens when all files in the Zip have already been extracted, so
-      # simply ignoring it allows tests to proceed (and pass).
-      #
-      begin
-        Zip::File.open(zip_buf) do |zip_file|
-          zip_file.each do |entry|
-            file_contents[entry.name] = entry.get_input_stream.read
-          end
+      Zip::File.open(zip_buf) do |zip_file|
+        zip_file.each do |entry|
+          file_contents[entry.name] = entry.get_input_stream.read
         end
-      rescue NoMethodError => e
-        raise e if e.message != "undefined method `dos_equals' for nil:NilClass"
-      end
-
+       end
       assert_equal '', file_contents['empty.txt']
       assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook></workbook>', file_contents['book2.xml']
       assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><another />', file_contents['another.xml']
