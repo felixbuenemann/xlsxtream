@@ -16,9 +16,6 @@ module Xlsxtream
     TRUE_STRING = 'true'.freeze
     FALSE_STRING = 'false'.freeze
 
-    DATE_STYLE = 1
-    TIME_STYLE = 2
-
     def initialize(row, rownum, options = {})
       @row = row
       @rownum = rownum
@@ -26,8 +23,8 @@ module Xlsxtream
       @auto_format = options[:auto_format]
 
       @normal_style = ''
-      @date_style = " s=\"#{DATE_STYLE}\""
-      @time_style = " s=\"#{TIME_STYLE}\""
+      @date_style = ' s="1"'
+      @time_style = ' s="2"'
     end
 
     def to_xml
