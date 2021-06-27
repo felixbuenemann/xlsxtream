@@ -14,13 +14,13 @@ module Xlsxtream
     end
 
     def <<(row)
-      @io << Row.new(row, @rownum, @options).to_xml
+      @io << Xlsxtream::Row.new(row, @rownum, @options).to_xml
       @rownum += 1
     end
     alias_method :add_row, :<<
 
     def add_header_row(row)
-      @io << HeaderRow.new(row, @rownum, @options).to_xml
+      @io << Xlsxtream::HeaderRow.new(row, @rownum, @options).to_xml
       @rownum += 1
     end
 
@@ -51,7 +51,7 @@ module Xlsxtream
 
       columns = Array(@options[:columns])
       unless columns.empty?
-        @io << Columns.new(columns).to_xml
+        @io << Xlsxtream::Columns.new(columns).to_xml
       end
 
       @io << XML.strip(<<-XML)
