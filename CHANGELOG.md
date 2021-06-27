@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0 (2021-06-28)
+
+- New `:add_header_row` method in Worksheet, which outputs as a row as bold text, intended for header rows
+
 ## 2.4.0 (2020-06-27)
 
 - Allow writing worksheets without a block using add\_worksheet (#42, #45)

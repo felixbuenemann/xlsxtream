@@ -162,8 +162,14 @@ module Xlsxtream
             <numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/>
             <numFmt numFmtId="165" formatCode="yyyy\\-mm\\-dd hh:mm:ss"/>
           </numFmts>
-          <fonts count="1">
+          <fonts count="2">
             <font>
+              <sz val="#{XML.escape_attr font_size}"/>
+              <name val="#{XML.escape_attr font_name}"/>
+              <family val="#{font_family_id}"/>
+            </font>
+            <font>
+              <b val="1"/>
               <sz val="#{XML.escape_attr font_size}"/>
               <name val="#{XML.escape_attr font_name}"/>
               <family val="#{font_family_id}"/>
@@ -183,10 +189,19 @@ module Xlsxtream
           <cellStyleXfs count="1">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
           </cellStyleXfs>
-          <cellXfs count="3">
+          <cellXfs count="6">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
             <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
             <xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+            <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1">
+              <alignment vertical="center"/>
+            </xf>
+            <xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
+              <alignment vertical="center"/>
+            </xf>
+            <xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
+              <alignment vertical="center"/>
+            </xf>
           </cellXfs>
           <cellStyles count="1">
             <cellStyle name="Normal" xfId="0" builtinId="0"/>

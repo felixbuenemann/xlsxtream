@@ -57,6 +57,12 @@ xlsx.write_worksheet 'AppendixSheet' do |sheet|
   sheet.add_row [Time.now, 'Time-machine']
 end
 
+# Output the first row as a header line using bold text
+xls.write_worksheet 'Sheet1' do |sheet|
+  sheet.add_header_row ['headers', 'in', 'bold']
+  sheet << ['first', 'normal', 'row']
+end
+
 # If you have highly repetitive data, you can enable Shared String Tables (SST)
 # for the workbook or a single worksheet. The SST has to be kept in memory,
 # so do not use it if you have a huge amount of rows or a little duplication

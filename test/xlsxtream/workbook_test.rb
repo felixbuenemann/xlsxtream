@@ -367,6 +367,29 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_add_header_row
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        wb.write_worksheet(headers: ['foo']) do |ws|
+          ws << ['foo']
+          ws.add_header_row ['bar'] # It's usually used as first row, but doesn't have to be
+          ws.add_row ['baz']
+        end
+      end
+
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+        '<sheetData>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c></row>' \
+          '<row r="2"><c r="A2" s="3" t="inlineStr"><is><t>bar</t></is></c></row>' \
+          '<row r="3"><c r="A3" t="inlineStr"><is><t>baz</t></is></c></row>' \
+        '</sheetData></worksheet>'
+
+      actual = iow_spy['xl/worksheets/sheet1.xml']
+      assert_equal expected, actual
+    end
+
     def test_styles_content
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) {}
@@ -377,8 +400,14 @@ module Xlsxtream
             '<numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/>' \
             '<numFmt numFmtId="165" formatCode="yyyy\\-mm\\-dd hh:mm:ss"/>' \
           '</numFmts>' \
-          '<fonts count="1">' \
+          '<fonts count="2">' \
             '<font>' \
+              '<sz val="12"/>' \
+              '<name val="Calibri"/>' \
+              '<family val="2"/>' \
+            '</font>' \
+            '<font>' \
+              '<b val="1"/>' \
               '<sz val="12"/>' \
               '<name val="Calibri"/>' \
               '<family val="2"/>' \
@@ -398,10 +427,19 @@ module Xlsxtream
           '<cellStyleXfs count="1">' \
             '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>' \
           '</cellStyleXfs>' \
-          '<cellXfs count="3">' \
+          '<cellXfs count="6">' \
             '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' \
             '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
             '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
+            '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1">' \
+              '<alignment vertical="center"/>' \
+            '</xf>' \
+            '<xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
+              '<alignment vertical="center"/>' \
+            '</xf>' \
+            '<xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
+              '<alignment vertical="center"/>' \
+            '</xf>' \
           '</cellXfs>' \
           '<cellStyles count="1">' \
             '<cellStyle name="Normal" xfId="0" builtinId="0"/>' \

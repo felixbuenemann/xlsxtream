@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require "xlsxtream/xml"
 require "xlsxtream/row"
+require "xlsxtream/header_row"
 
 module Xlsxtream
   class Worksheet
@@ -18,6 +19,11 @@ module Xlsxtream
       @rownum += 1
     end
     alias_method :add_row, :<<
+
+    def add_header_row(row)
+      @io << HeaderRow.new(row, @rownum, @options).to_xml
+      @rownum += 1
+    end
 
     def close
       write_footer
