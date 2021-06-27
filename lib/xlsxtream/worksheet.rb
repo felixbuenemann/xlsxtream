@@ -48,7 +48,7 @@ module Xlsxtream
 
       columns = Array(@options[:columns])
       unless columns.empty?
-        @io << Columns.new(columns).to_xml
+        @io << Xlsxtream::Columns.new(columns).to_xml
       end
 
       @io << XML.strip(<<-XML)
