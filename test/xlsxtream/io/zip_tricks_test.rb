@@ -27,7 +27,7 @@ module Xlsxtream
         zip_file.each do |entry|
           file_contents[entry.name] = entry.get_input_stream.read
         end
-       end
+      end
       assert_equal '', file_contents['empty.txt']
       assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook></workbook>', file_contents['book2.xml']
       assert_equal '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><another />', file_contents['another.xml']
