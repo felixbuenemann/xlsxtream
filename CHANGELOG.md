@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.5.0 (2020-11-26)
+## 2.5.0 (2021-06-28)
 
 - New `:add_header_row` method in Worksheet, which outputs as a row as bold text, intended for header rows
 
