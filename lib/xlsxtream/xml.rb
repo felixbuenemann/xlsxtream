@@ -8,6 +8,10 @@ module Xlsxtream
       '>' => '&gt;',
     }.freeze
 
+    # Escape first underscore of ST_Xstring sequences in input strings to appear as plaintext in Excel
+    HEX_ESCAPE_REGEXP = /_(x[0-9A-Fa-f]{4}_)/.freeze
+    XML_ESCAPE_UNDERSCORE = '_x005f_\1'.freeze
+
     XML_DECLARATION = %'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'.freeze
 
     WS_AROUND_TAGS = /(?<=>)\s+|\s+(?=<)/.freeze
@@ -37,7 +41,10 @@ module Xlsxtream
       end
 
       def escape_value(string)
-        string.gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES).gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
+        string
+          .gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES)
+          .gsub(HEX_ESCAPE_REGEXP, XML_ESCAPE_UNDERSCORE)
+          .gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
       end
 
     end

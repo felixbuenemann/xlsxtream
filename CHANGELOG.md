@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0 (unreleased)
+
+- Escape strings that look like Excel escape sequences 
+
 ## 3.0.0 (2024-12-28)
 
 - Change dependency from zip\_tricks to zip\_kit (#57)
