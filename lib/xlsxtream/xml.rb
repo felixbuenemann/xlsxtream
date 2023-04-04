@@ -8,6 +8,9 @@ module Xlsxtream
       '>' => '&gt;',
     }.freeze
 
+    HEX_ESCAPE_REGEXP = /_x[0-9A-Fa-f]{4}_/
+    XML_ESCAPE_UNDERSCORE = '_x005f_'
+
     XML_DECLARATION = %'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'.freeze
 
     WS_AROUND_TAGS = /(?<=>)\s+|\s+(?=<)/.freeze
@@ -36,8 +39,16 @@ module Xlsxtream
         string.gsub(UNSAFE_ATTR_CHARS, XML_ESCAPES)
       end
 
+      # Add underscore to strings that merely look like hex values, preventing manipulation into invalid UTF8
+      def encode_underscores_using_x005f(string)
+        string.gsub(HEX_ESCAPE_REGEXP) do |match|
+          match.sub("_", XML_ESCAPE_UNDERSCORE)
+        end
+      end
+
       def escape_value(string)
-        string.gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES).gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
+        excel_safe_string = encode_underscores_using_x005f(string)
+        excel_safe_string.gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES).gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
       end
 
     end
