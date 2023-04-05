@@ -39,17 +39,18 @@ module Xlsxtream
         string.gsub(UNSAFE_ATTR_CHARS, XML_ESCAPES)
       end
 
-      # Add underscore to strings that merely look like hex values, preventing manipulation into invalid UTF8
-      # Per Microsoft Open Specifications for Excel:
+      # Ensure that we escape the first underscore character in plaintext strings that match the format for Excel escape sequences.
+      # This ensures that these strings are displayed as plaintext and not incorrectly parsed as escape sequences by Excel
+      # Per Microsoft Open Specifications for Excel: https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/d34ae755-c53f-4a44-a363-c6dd3ee018a4
       # Underscore (0x005f): This character shall be escaped only when used to escape the first underscore character in the format _xHHHH_.
-      def encode_underscores_using_x005f(string)
+      def escape_strings_that_match_excel_escape_sequence(string)
         string.gsub(HEX_ESCAPE_REGEXP) do |match|
           match.sub("_", XML_ESCAPE_UNDERSCORE)
         end
       end
 
       def escape_value(string)
-        excel_safe_string = encode_underscores_using_x005f(string)
+        excel_safe_string = escape_strings_that_match_excel_escape_sequence(string)
         excel_safe_string.gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES).gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
       end
 
