@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0 (2020-04-05)
+
+- Ensure that we escape the first underscore character in plaintext strings that match the format for Excel escape sequences. 
+
 ## 2.4.0 (2020-06-27)
 
 - Allow writing worksheets without a block using add\_worksheet (#42, #45)
