@@ -40,6 +40,8 @@ module Xlsxtream
       end
 
       # Add underscore to strings that merely look like hex values, preventing manipulation into invalid UTF8
+      # Per Microsoft Open Specifications for Excel:
+      # Underscore (0x005f): This character shall be escaped only when used to escape the first underscore character in the format _xHHHH_.
       def encode_underscores_using_x005f(string)
         string.gsub(HEX_ESCAPE_REGEXP) do |match|
           match.sub("_", XML_ESCAPE_UNDERSCORE)
