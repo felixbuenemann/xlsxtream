@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0 (2020-06-27)
+
+- Change dependency from zip_tricks to zip_kit
+
 ## 2.4.0 (2020-06-27)
 
 - Allow writing worksheets without a block using add\_worksheet (#42, #45)

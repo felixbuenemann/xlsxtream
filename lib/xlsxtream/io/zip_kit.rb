@@ -1,13 +1,13 @@
 # frozen_string_literal: true
-require "zip_tricks"
+require "zip_kit"
 
 module Xlsxtream
   module IO
-    class ZipTricks
+    class ZipKit
       BUFFER_SIZE = 64 * 1024
 
       def initialize(body)
-        @streamer = ::ZipTricks::Streamer.new(body)
+        @streamer = ::ZipKit::Streamer.new(body)
         @wf = nil
         @buffer = String.new
       end
