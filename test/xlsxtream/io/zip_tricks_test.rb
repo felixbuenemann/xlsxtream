@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 require 'test_helper'
-require 'xlsxtream/io/zip_tricks'
+require 'xlsxtream/io/zip_kit'
 require 'zip'
 
 module Xlsxtream
-  class ZipTricksTest < Minitest::Test
+  class ZipKitTest < Minitest::Test
 
     def test_writes_of_multiple_files
       zip_buf = Tempfile.new('ztio-test')
 
-      io = Xlsxtream::IO::ZipTricks.new(zip_buf)
+      io = Xlsxtream::IO::ZipKit.new(zip_buf)
       io.add_file("book1.xml")
       io << '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook />'
       io.add_file("book2.xml")

@@ -3,7 +3,7 @@ require "xlsxtream/errors"
 require "xlsxtream/xml"
 require "xlsxtream/shared_string_table"
 require "xlsxtream/worksheet"
-require "xlsxtream/io/zip_tricks"
+require "xlsxtream/io/zip_kit"
 
 module Xlsxtream
   class Workbook
@@ -46,13 +46,13 @@ module Xlsxtream
       end
       if output.is_a?(String) || !output.respond_to?(:<<)
         @file = File.open(output, 'wb')
-        @io = IO::ZipTricks.new(@file)
+        @io = IO::ZipKit.new(@file)
       elsif output.respond_to? :add_file
         @file = nil
         @io = output
       else
         @file = nil
-        @io = IO::ZipTricks.new(output)
+        @io = IO::ZipKit.new(output)
       end
       @sst = SharedStringTable.new
       @worksheets = []
