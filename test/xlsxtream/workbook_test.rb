@@ -3,10 +3,32 @@ require 'test_helper'
 require 'stringio'
 require 'tempfile'
 require 'xlsxtream/workbook'
-require 'xlsxtream/io/hash'
 
 module Xlsxtream
   class WorksheetTest < Minitest::Test
+
+    class SpyWriter < Xlsxtream::ZipKitWriter
+      def initialize
+        @paths_to_file_contents = {}
+        @current = nil
+      end
+
+      def <<(data)
+        @paths_to_file_contents[@current] << data
+      end
+
+      def add_file(path)
+        @current = path
+        @paths_to_file_contents[@current] = String.new
+      end
+
+      def [](key)
+        @paths_to_file_contents.fetch(key)
+      end
+
+      def close
+      end
+    end
 
     def test_workbook_from_path
       tempfile = Tempfile.new('xlsxtream')
@@ -481,7 +503,7 @@ module Xlsxtream
     private
 
     def io_wrapper_spy
-      IO::Hash.new(StringIO.new)
+      SpyWriter.new
     end
 
     def silence_warnings

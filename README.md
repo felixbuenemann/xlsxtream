@@ -1,7 +1,6 @@
 # Xlsxtream
 
 [![Gem Version](https://badge.fury.io/rb/xlsxtream.svg)](https://rubygems.org/gems/xlsxtream)
-[![Build Status](https://travis-ci.org/felixbuenemann/xlsxtream.svg)](https://travis-ci.org/felixbuenemann/xlsxtream)
 
 Xlsxtream is a streaming writer for XLSX spreadsheets. It supports multiple worksheets and optional string
 deduplication via a shared string table (SST). Its purpose is to replace CSV for large exports, because using
@@ -33,7 +32,7 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-# Creates a new workbook and closes it at the end of the block
+# Creates a new workbook file, write and close it at the end of the block
 Xlsxtream::Workbook.open('my_data.xlsx') do |xlsx|
   xlsx.write_worksheet 'Sheet1' do |sheet|
     # Boolean, Date, Time, DateTime and Numeric are properly mapped
