@@ -107,35 +107,40 @@ Xlsxtream::Workbook.new(io, columns: [
 ])
 # The :columns option can also be given to write_worksheet, so it's
 # possible to have multiple worksheets with different column widths.
-```
 
+
+# Output from Rails (will stream without buffering)
+class ReportsController < ApplicationController
+  include ZipKit::RailsStreaming
+  EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+  def download
+    contrent
+    zip_kit_stream(filename: "report.xlsx", type: EXCEL_CONTENT_TYPE) do |zip_kit_streamer|
+      Xlsxtream::Workbook.open(zip_kit_streamer) do |xlsx|
+        xlsx.write_worksheet 'Sheet1' do |sheet|
+          # Boolean, Date, Time, DateTime and Numeric are properly mapped
+          sheet << [true, Date.today, 'hello', 'world', 42, 3.14159265359, 42**13]
+        end
+      end
+    end
+  end
+end
+```
 
 ## Compatibility
 
-The current version of Xlsxtream requires at least Ruby 2.1.0.
+The current version of Xlsxtream requires at least Ruby 2.6
 
 If you are using an older Ruby version you can use the following in your Gemfile:
 
 ```ruby
-gem 'xlsxtream', '< 2'
+gem 'xlsxtream', '< 3'
 ```
 
 * The last version with support for Ruby 1.9.1 is 1.2.0.
 * The last version with support for Ruby 1.9.2 is 1.3.2.
-
-## Upgrading
-
-If you are upgrading from a version earlier than 2.x and are using the undocumented `:io_wrapper` option you need to update your code:
-
-```ruby
-# Pre 2.x code with :io_wrapper option
-Xlsxtream::Workbook.new(io, io_wrapper: MyCustomIOWrapper)
-# New code with IO wrapper instance
-io_wrapper = MyCustomIOWrapper.new(io)
-Xlsxtream::Workbook.new(io_wrapper)
-```
-
-Every IO-like object that responds to `:add_file` is treated as an IO wrapper.
+* The last version with support for Ruby 2.1.x is 2.4.x
 
 ## Development
 

@@ -10,12 +10,14 @@ module Xlsxtream
         output
       elsif output.is_a?(ZipKit::Streamer)
         # If this is a Streamer which has already been initialized, it is likely that the streamer
-        # was initialized with a Streamer.open block - it will close itself
+        # was initialized with a Streamer.open block - it will close itself. This allows xslxstream
+        # to be used with zip_kit_stream and other cases where the Streamer is managed externally
         new(output, close: [])
-      elsif output.is_a?(String) || !output.respond_to?(:<<)
-        @file = File.open(output, 'wb')
-        streamer = ZipKit::Streamer.new(@file)
-        new(streamer, close: [streamer, @file])
+      elsif output.is_a?(String)
+        file = File.open(output, 'wb')
+        streamer = ZipKit::Streamer.new(file)
+        # First the Streamer needs to be closed (to write out the central directory), then the file
+        new(streamer, close: [streamer, file])
       elsif output.respond_to?(:<<) || output.respond_to?(:write)
         streamer = ZipKit::Streamer.new(output)
         new(streamer, close: [streamer])
@@ -27,7 +29,7 @@ module Xlsxtream
           * A ZipKit::Streamer
           * An IO-like object responding to #<< or #write
 
-          but it was an #{output.class}
+          but it was a #{output.class}
         MSG
         raise ArgumentError, error
       end
@@ -35,7 +37,7 @@ module Xlsxtream
 
     def initialize(streamer, close: [])
       @streamer = streamer
-      @wf = nil
+      @currently_writing_file_inside_zip = nil
       @buffer = String.new
       @close = close
     end
@@ -48,7 +50,7 @@ module Xlsxtream
 
     def add_file(path)
       flush_file
-      @wf = @streamer.write_deflated_file(path)
+      @currently_writing_file_inside_zip = @streamer.write_deflated_file(path)
     end
 
     def close
@@ -59,14 +61,14 @@ module Xlsxtream
     private
 
     def flush_buffer
-      @wf << @buffer
+      @currently_writing_file_inside_zip << @buffer
       @buffer.clear
     end
 
     def flush_file
-      return unless @wf
+      return unless @currently_writing_file_inside_zip
       flush_buffer if @buffer.size > 0
-      @wf.close
+      @currently_writing_file_inside_zip.close
     end
   end
 end
