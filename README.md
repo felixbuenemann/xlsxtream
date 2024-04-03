@@ -115,7 +115,6 @@ class ReportsController < ApplicationController
   EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
   def download
-    contrent
     zip_kit_stream(filename: "report.xlsx", type: EXCEL_CONTENT_TYPE) do |zip_kit_streamer|
       Xlsxtream::Workbook.open(zip_kit_streamer) do |xlsx|
         xlsx.write_worksheet 'Sheet1' do |sheet|
