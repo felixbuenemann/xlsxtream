@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0 (2024-07-10)
+
+- Move to [ZipKit gem](http://rubygems.org/gems/zip_kit); equivalent of https://github.com/felixbuenemann/xlsxtream/pull/57/files
+
 ## 2.5.0 (2021-06-28)
 
 - New `:add_header_row` method in Worksheet, which outputs as a row as bold text, intended for header rows
@@ -27,11 +31,11 @@
 ## 2.0.1 (2018-03-11)
 
 - Rescue gracefully from invalid dates with auto-format (#22)
-- Remove unused ZipTricksFibers IO wrapper (#24)
+- Remove unused ZipKitFibers IO wrapper (#24)
 
 ## 2.0.0 (2017-10-31)
 
-- Replace RubyZip with ZipTricks as default compressor (#16)
+- Replace RubyZip with ZipKit as default compressor (#16)
 - Drop support for Ruby < 2.1.0 (required for zip\_tricks gem)
 - Deprecate :io\_wrapper option, you can now pass wrapper instances (#20)
 
