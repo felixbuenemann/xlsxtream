@@ -137,10 +137,6 @@ If you are using an older Ruby version you can use the following in your Gemfile
 gem 'xlsxtream', '< 3'
 ```
 
-* The last version with support for Ruby 1.9.1 is 1.2.0.
-* The last version with support for Ruby 1.9.2 is 1.3.2.
-* The last version with support for Ruby 2.1.x is 2.4.x
-
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
