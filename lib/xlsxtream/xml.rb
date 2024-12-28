@@ -9,22 +9,22 @@ module Xlsxtream
     }.freeze
 
     # Escape first underscore of ST_Xstring sequences in input strings to appear as plaintext in Excel
-    HEX_ESCAPE_REGEXP = /_(x[0-9A-Fa-f]{4}_)/.freeze
-    XML_ESCAPE_UNDERSCORE = '_x005f_\1'.freeze
+    HEX_ESCAPE_REGEXP = /_(x[0-9A-Fa-f]{4}_)/
+    XML_ESCAPE_UNDERSCORE = '_x005f_\1'
 
-    XML_DECLARATION = %'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'.freeze
+    XML_DECLARATION = %'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
 
-    WS_AROUND_TAGS = /(?<=>)\s+|\s+(?=<)/.freeze
+    WS_AROUND_TAGS = /(?<=>)\s+|\s+(?=<)/
 
-    UNSAFE_ATTR_CHARS = /[&"<>]/.freeze
-    UNSAFE_VALUE_CHARS = /[&<>]/.freeze
+    UNSAFE_ATTR_CHARS = /[&"<>]/
+    UNSAFE_VALUE_CHARS = /[&<>]/
 
     # http://www.w3.org/TR/REC-xml/#NT-Char:
     # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-    INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/.freeze
+    INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/
 
     # ST_Xstring escaping
-    ESCAPE_CHAR = lambda { |c| '_x%04X_'.freeze % c.ord }.freeze
+    ESCAPE_CHAR = lambda { |c| '_x%04X_' % c.ord }
 
     class << self
 
@@ -33,7 +33,7 @@ module Xlsxtream
       end
 
       def strip(xml)
-        xml.gsub(WS_AROUND_TAGS, ''.freeze)
+        xml.gsub(WS_AROUND_TAGS, '')
       end
 
       def escape_attr(string)
