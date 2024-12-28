@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  - push
+
+env:
+  BUNDLE_PATH: vendor/bundle
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ruby:
+          - '2.6'
+          - '3.2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: "Tests"
+        run: bundle exec rake
