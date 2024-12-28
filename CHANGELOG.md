@@ -1,8 +1,8 @@
 # Changelog
 
-## 3.1.0 (unreleased)
+## 3.1.0 (2024-12-28)
 
-- Escape strings that look like Excel escape sequences 
+- Escape strings that look like Excel escape sequences (#56)
 
 ## 3.0.0 (2024-12-28)
 
