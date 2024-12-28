@@ -1,8 +1,12 @@
 # Changelog
 
-## 2.5.0 (2020-06-27)
+## 3.0.0 (unreleased)
 
 - Change dependency from zip_tricks to zip_kit
+- Allow ZipKit streamer to be passed in as output destination. In that case the Streamer can be closed externally
+- Remove IO wrappers and leave just the ZIP output wrapper, as it is the only one which would produce useable output
+- Ensure the gem can use the ZipKit Rails streaming helper for output
+- Switch from Travis-CI to Github Actions
 
 ## 2.4.0 (2020-06-27)
 
