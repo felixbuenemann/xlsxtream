@@ -13,6 +13,10 @@ module Xlsxtream
         # was initialized with a Streamer.open block - it will close itself. This allows xslxstream
         # to be used with zip_kit_stream and other cases where the Streamer is managed externally
         new(output, close: [])
+      elsif defined?(Pathname) && output.is_a?(Pathname)
+        # Pathname is not necessarily required in all contexts, therefore a check is added for it
+        # to be defined? first. A Pathname can be converted into a path
+        with_output_to(output.to_s)
       elsif output.is_a?(String)
         file = File.open(output, 'wb')
         streamer = ZipKit::Streamer.new(file)
@@ -26,6 +30,7 @@ module Xlsxtream
           An `output` object must be one of:
 
           * A String containing a path to a file ("workbook.xslx")
+          * A Pathname containing a path to a file (Pathname.new("workbook.xslx"))
           * A ZipKit::Streamer
           * An IO-like object responding to #<< or #write
 

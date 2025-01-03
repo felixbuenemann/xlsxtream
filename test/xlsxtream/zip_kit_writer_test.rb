@@ -58,6 +58,15 @@ module Xlsxtream
       end
     end
 
+    def test_with_output_to_converts_pathname_into_path
+      tf = Tempfile.new
+      assert tf.size == 0
+      pathname = Pathname.new(tf.path)
+      writer = Xlsxtream::ZipKitWriter.with_output_to(pathname)
+      writer.close
+      assert tf.size > 0
+    end
+
     def test_with_output_to_writes_into_io
       io = StringIO.new
       writer = Xlsxtream::ZipKitWriter.with_output_to(io)
