@@ -16,9 +16,6 @@ module Xlsxtream
     TRUE_STRING = 'true'.freeze
     FALSE_STRING = 'false'.freeze
 
-    DATE_STYLE = 1
-    TIME_STYLE = 2
-
     def initialize(row, rownum, options = {})
       @row = row
       @rownum = rownum
