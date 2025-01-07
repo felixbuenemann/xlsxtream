@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require "xlsxtream/xml"
 require "xlsxtream/row"
-require "xlsxtream/header_row"
 
 module Xlsxtream
   class Worksheet
