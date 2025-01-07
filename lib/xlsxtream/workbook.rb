@@ -87,6 +87,7 @@ module Xlsxtream
       use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
       auto_format = options.fetch(:auto_format, @options[:auto_format])
       columns = options.fetch(:columns, @options[:columns])
+      has_header_row = options.fetch(:has_header_row, @options[:has_header_row])
       sst = use_sst ? @sst : nil
 
       sheet_id = @worksheets.size + 1
@@ -94,7 +95,7 @@ module Xlsxtream
 
       @writer.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns)
+      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row)
       @worksheets << worksheet
 
       worksheet
