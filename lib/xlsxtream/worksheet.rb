@@ -15,7 +15,7 @@ module Xlsxtream
     end
 
     def <<(row)
-      options = @has_header_row && @rownum == 1 ? @options.merge(:bold => true) : @options
+      options = @has_header_row && @rownum == 1 ? @options.merge(:is_header => true) : @options
       @io << Row.new(row, @rownum, options).to_xml
       @rownum += 1
     end
