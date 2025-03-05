@@ -16,19 +16,27 @@ module Xlsxtream
     TRUE_STRING = 'true'.freeze
     FALSE_STRING = 'false'.freeze
 
-    DATE_STYLE = 1
-    TIME_STYLE = 2
-
     def initialize(row, rownum, options = {})
       @row = row
       @rownum = rownum
       @sst = options[:sst]
       @auto_format = options[:auto_format]
+      @is_header = options[:is_header]
     end
 
     def to_xml
       column = String.new('A')
       xml = String.new(%Q{<row r="#{@rownum}">})
+
+      if @is_header
+        normal_style = ' s="3"'
+        date_style   = ' s="4"'
+        time_style   = ' s="5"'
+      else
+        normal_style = ''
+        date_style   = ' s="1"'
+        time_style   = ' s="2"'
+      end
 
       @row.each do |value|
         cid = "#{column}#{@rownum}"
@@ -40,15 +48,15 @@ module Xlsxtream
 
         case value
         when Numeric
-          xml << %Q{<c r="#{cid}" t="n"><v>#{value}</v></c>}
+          xml << %Q{<c r="#{cid}"#{normal_style} t="n"><v>#{value}</v></c>}
         when TrueClass, FalseClass
-          xml << %Q{<c r="#{cid}" t="b"><v>#{value ? 1 : 0}</v></c>}
+          xml << %Q{<c r="#{cid}"#{normal_style} t="b"><v>#{value ? 1 : 0}</v></c>}
         when Time
-          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{time_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}"#{time_style}><v>#{time_to_oa_date(value)}</v></c>}
         when DateTime
-          xml << %Q{<c r="#{cid}" s="#{TIME_STYLE}"><v>#{datetime_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}"#{time_style}><v>#{datetime_to_oa_date(value)}</v></c>}
         when Date
-          xml << %Q{<c r="#{cid}" s="#{DATE_STYLE}"><v>#{date_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}"#{date_style}><v>#{date_to_oa_date(value)}</v></c>}
         else
           value = value.to_s
 
@@ -56,9 +64,9 @@ module Xlsxtream
             value = value.encode(ENCODING) if value.encoding != ENCODING
 
             if @sst
-              xml << %Q{<c r="#{cid}" t="s"><v>#{@sst[value]}</v></c>}
+              xml << %Q{<c r="#{cid}"#{normal_style} t="s"><v>#{@sst[value]}</v></c>}
             else
-              xml << %Q{<c r="#{cid}" t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
+              xml << %Q{<c r="#{cid}"#{normal_style} t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
             end
           end
         end

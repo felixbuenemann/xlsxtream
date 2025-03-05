@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.0 (2025-01-08)
+
+- New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text
+
 ## 3.1.0 (2024-12-28)
 
 - Escape strings that look like Excel escape sequences (#56)

@@ -87,6 +87,7 @@ module Xlsxtream
       use_sst = options.fetch(:use_shared_strings, @options[:use_shared_strings])
       auto_format = options.fetch(:auto_format, @options[:auto_format])
       columns = options.fetch(:columns, @options[:columns])
+      has_header_row = options.fetch(:has_header_row, @options[:has_header_row])
       sst = use_sst ? @sst : nil
 
       sheet_id = @worksheets.size + 1
@@ -94,7 +95,7 @@ module Xlsxtream
 
       @writer.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns)
+      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row)
       @worksheets << worksheet
 
       worksheet
@@ -145,8 +146,14 @@ module Xlsxtream
             <numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/>
             <numFmt numFmtId="165" formatCode="yyyy\\-mm\\-dd hh:mm:ss"/>
           </numFmts>
-          <fonts count="1">
+          <fonts count="2">
             <font>
+              <sz val="#{XML.escape_attr font_size}"/>
+              <name val="#{XML.escape_attr font_name}"/>
+              <family val="#{font_family_id}"/>
+            </font>
+            <font>
+              <b val="1"/>
               <sz val="#{XML.escape_attr font_size}"/>
               <name val="#{XML.escape_attr font_name}"/>
               <family val="#{font_family_id}"/>
@@ -166,10 +173,19 @@ module Xlsxtream
           <cellStyleXfs count="1">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
           </cellStyleXfs>
-          <cellXfs count="3">
+          <cellXfs count="6">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
             <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
             <xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+            <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1">
+              <alignment horizontal="center" vertical="center"/>
+            </xf>
+            <xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
+              <alignment horizontal="center" vertical="center"/>
+            </xf>
+            <xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
+              <alignment horizontal="center" vertical="center"/>
+            </xf>
           </cellXfs>
           <cellStyles count="1">
             <cellStyle name="Normal" xfId="0" builtinId="0"/>

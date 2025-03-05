@@ -9,12 +9,14 @@ module Xlsxtream
       @rownum = 1
       @closed = false
       @options = options
+      @has_header_row = options.delete(:has_header_row)
 
       write_header
     end
 
     def <<(row)
-      @io << Row.new(row, @rownum, @options).to_xml
+      options = @has_header_row && @rownum == 1 ? @options.merge(:is_header => true) : @options
+      @io << Row.new(row, @rownum, options).to_xml
       @rownum += 1
     end
     alias_method :add_row, :<<

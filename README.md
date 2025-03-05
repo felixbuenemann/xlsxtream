@@ -96,6 +96,9 @@ Xlsxtream::Workbook.new(io, font: {
   family: 'Roman' # Swiss, Modern, Script, Decorative
 })
 
+# Treat the first output row as a header, using bold and centred text
+Xlsxtream::Workbook.new(io, has_header_row: true)
+
 # Specifying column widths in pixels or characters; 3 column example;
 # "pixel" widths appear to be *relative* to an assumed 11pt Calibri
 # font, so if selecting a different font or size (see above), do not
