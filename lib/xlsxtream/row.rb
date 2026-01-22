@@ -22,6 +22,7 @@ module Xlsxtream
       @sst = options[:sst]
       @auto_format = options[:auto_format]
       @is_header = options[:is_header]
+      @include_blanks = options[:include_blanks]
     end
 
     def to_xml
@@ -49,7 +50,7 @@ module Xlsxtream
         # so skipped cells (nil, empty strings) allocate nothing.
         case value
         when nil
-          # no xml output for nil
+          xml << %Q{<c r="#{column}#{@rownum}"/>} if @include_blanks
         when String
           append_string(xml, column, value, normal_style)
         when Numeric
@@ -75,7 +76,10 @@ module Xlsxtream
     private
 
     def append_string(xml, column, value, style)
-      return if value.empty? # no xml output for empty strings
+      if value.empty?
+        xml << %Q{<c r="#{column}#{@rownum}"/>} if @include_blanks
+        return
+      end
 
       value = value.encode(ENCODING) if value.encoding != ENCODING
       if @sst
