@@ -10,8 +10,15 @@ module Xlsxtream
     # =========================================================================
 
     def test_empty_column
-      row = Row.new([nil], 1)
+      row = Row.new([nil, ''], 1)
       expected = '<row r="1"></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    def test_empty_column_with_include_blanks
+      row = Row.new([nil, ''], 1, :include_blanks => true)
+      expected = '<row r="1"><c r="A1" /><c r="B1" /></row>'
       actual = row.to_xml
       assert_equal expected, actual
     end
@@ -152,8 +159,8 @@ module Xlsxtream
     end
 
     def test_multiple_columns
-      row = Row.new(['foo', nil, 23], 1)
-      expected = '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c><c r="C1" t="n"><v>23</v></c></row>'
+      row = Row.new(['foo', '', nil, 23], 1)
+      expected = '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c><c r="D1" t="n"><v>23</v></c></row>'
       actual = row.to_xml
       assert_equal expected, actual
     end

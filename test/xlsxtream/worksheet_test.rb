@@ -18,8 +18,8 @@ module Xlsxtream
     def test_add_row
       io = StringIO.new
       ws = Worksheet.new(io)
-      ws << ['foo']
-      ws.add_row ['bar']
+      ws << ['foo', '']
+      ws.add_row ['bar', nil]
       ws.close
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
@@ -68,6 +68,19 @@ module Xlsxtream
         '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' \
           '<row r="1"><c r="A1" s="3" t="inlineStr"><is><t>header</t></is></c></row>' \
           '<row r="2"><c r="A2" t="inlineStr"><is><t>not header</t></is></c></row>' \
+        '</sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_add_row_with_include_blanks_option
+      io = StringIO.new
+      ws = Worksheet.new(io, :include_blanks => true)
+      ws << [nil, '']
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' \
+          '<row r="1"><c r="A1" /><c r="B1" /></row>' \
         '</sheetData></worksheet>'
       assert_equal expected, io.string
     end
