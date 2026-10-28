@@ -4,6 +4,7 @@
 
 - New `:date_format` and `:datetime_format` workbook options. Pass `:locale` to use Excel's built-in, locale-dependent date formats, or a custom number format code. The default is still ISO-8601 (#65)
 - New `:freeze_rows` and `:freeze_columns` worksheet and workbook options, to freeze panes
+- New `:auto_filter` worksheet and workbook option, to add filter buttons to the columns of the written rows
 
 ## 3.2.0 (2025-01-08)
 

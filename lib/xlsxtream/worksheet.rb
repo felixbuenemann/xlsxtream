@@ -10,6 +10,8 @@ module Xlsxtream
       @closed = false
       @options = options
       @has_header_row = options.delete(:has_header_row)
+      @auto_filter = options.delete(:auto_filter)
+      @column_count = 0
 
       write_header
     end
@@ -17,6 +19,7 @@ module Xlsxtream
     def <<(row)
       options = @has_header_row && @rownum == 1 ? @options.merge(:is_header => true) : @options
       @io << Row.new(row, @rownum, options).to_xml
+      @column_count = [@column_count, row.count].max if @auto_filter
       @rownum += 1
     end
     alias_method :add_row, :<<
@@ -36,6 +39,17 @@ module Xlsxtream
 
     def name
       @options[:name]
+    end
+
+    # Cell range covered by the auto filter, e.g. "A1:C5", or nil if the
+    # worksheet has no auto filter (or no rows to filter).
+    def auto_filter_ref
+      return unless @auto_filter && @column_count > 0
+
+      last_column = String.new('A')
+      (@column_count - 1).times { last_column.next! }
+
+      "A1:#{last_column}#{@rownum - 1}"
     end
 
     private
@@ -81,8 +95,9 @@ module Xlsxtream
     def write_footer
       @io << XML.strip(<<-XML)
           </sheetData>
-        </worksheet>
       XML
+      @io << %Q{<autoFilter ref="#{auto_filter_ref}"/>} if auto_filter_ref
+      @io << '</worksheet>'
     end
   end
 end
