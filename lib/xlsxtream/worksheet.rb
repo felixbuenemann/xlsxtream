@@ -46,6 +46,12 @@ module Xlsxtream
         <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
       XML
 
+      freeze_rows = @options[:freeze_rows].to_i
+      freeze_columns = @options[:freeze_columns].to_i
+      if freeze_rows > 0 || freeze_columns > 0
+        @io << sheet_views_xml(freeze_rows, freeze_columns)
+      end
+
       columns = Array(@options[:columns])
       unless columns.empty?
         @io << Columns.new(columns).to_xml
@@ -54,6 +60,22 @@ module Xlsxtream
       @io << XML.strip(<<-XML)
           <sheetData>
       XML
+    end
+
+    def sheet_views_xml(rows, columns)
+      top_left = String.new('A')
+      columns.times { top_left.next! }
+      top_left << (rows + 1).to_s
+
+      attributes = String.new
+      attributes << %Q{ xSplit="#{columns}"} if columns > 0
+      attributes << %Q{ ySplit="#{rows}"} if rows > 0
+      active_pane = if rows > 0 && columns > 0 then 'bottomRight'
+                    elsif rows > 0 then 'bottomLeft'
+                    else 'topRight'
+                    end
+
+      %Q{<sheetViews><sheetView workbookViewId="0"><pane#{attributes} topLeftCell="#{top_left}" activePane="#{active_pane}" state="frozen"/></sheetView></sheetViews>}
     end
 
     def write_footer

@@ -113,6 +113,8 @@ module Xlsxtream
       auto_format = options.fetch(:auto_format, @options[:auto_format])
       columns = options.fetch(:columns, @options[:columns])
       has_header_row = options.fetch(:has_header_row, @options[:has_header_row])
+      freeze_rows = options.fetch(:freeze_rows, @options[:freeze_rows])
+      freeze_columns = options.fetch(:freeze_columns, @options[:freeze_columns])
       sst = use_sst ? @sst : nil
 
       sheet_id = @worksheets.size + 1
@@ -120,7 +122,7 @@ module Xlsxtream
 
       @writer.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row)
+      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row, :freeze_rows => freeze_rows, :freeze_columns => freeze_columns)
       @worksheets << worksheet
 
       worksheet
