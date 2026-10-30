@@ -159,6 +159,8 @@ module Xlsxtream
     # LibreOffice ignores an <autoFilter> unless the hidden _FilterDatabase
     # name for the sheet covers the same range (Excel writes it as well).
     def write_defined_names
+      return unless @worksheets.any?(&:auto_filter_ref)
+
       names = @worksheets.each_with_index.map do |worksheet, index|
         next unless (ref = worksheet.auto_filter_ref)
 
@@ -166,7 +168,6 @@ module Xlsxtream
         sheet_name = worksheet.name.gsub("'", "''")
         %'<definedName name="_xlnm._FilterDatabase" localSheetId="#{index}" hidden="1">#{XML.escape_attr "'#{sheet_name}'!#{absolute_ref}"}</definedName>'
       end.compact
-      return if names.empty?
 
       @writer << "<definedNames>#{names.join}</definedNames>"
     end
