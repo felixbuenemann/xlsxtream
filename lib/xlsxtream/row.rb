@@ -22,6 +22,9 @@ module Xlsxtream
       @sst = options[:sst]
       @auto_format = options[:auto_format]
       @is_header = options[:is_header]
+      # Style attributes per column for custom number formats, e.g. ' s="6"'.
+      # The header row keeps its own style.
+      @column_styles = options[:column_styles] unless @is_header
     end
 
     def to_xml
@@ -38,9 +41,14 @@ module Xlsxtream
         time_style   = ' s="2"'
       end
 
+      index = 0
       @row.each do |value|
         cid = "#{column}#{@rownum}"
         column.next!
+        if @column_styles
+          column_style = @column_styles[index]
+          index += 1
+        end
 
         if @auto_format && value.is_a?(String)
           value = auto_format(value)
@@ -48,15 +56,15 @@ module Xlsxtream
 
         case value
         when Numeric
-          xml << %Q{<c r="#{cid}"#{normal_style} t="n"><v>#{value}</v></c>}
+          xml << %Q{<c r="#{cid}"#{column_style || normal_style} t="n"><v>#{value}</v></c>}
         when TrueClass, FalseClass
           xml << %Q{<c r="#{cid}"#{normal_style} t="b"><v>#{value ? 1 : 0}</v></c>}
         when Time
-          xml << %Q{<c r="#{cid}"#{time_style}><v>#{time_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}"#{column_style || time_style}><v>#{time_to_oa_date(value)}</v></c>}
         when DateTime
-          xml << %Q{<c r="#{cid}"#{time_style}><v>#{datetime_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}"#{column_style || time_style}><v>#{datetime_to_oa_date(value)}</v></c>}
         when Date
-          xml << %Q{<c r="#{cid}"#{date_style}><v>#{date_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{cid}"#{column_style || date_style}><v>#{date_to_oa_date(value)}</v></c>}
         else
           value = value.to_s
 

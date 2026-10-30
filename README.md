@@ -111,6 +111,15 @@ Xlsxtream::Workbook.new(io, columns: [
 # The :columns option can also be given to write_worksheet, so it's
 # possible to have multiple worksheets with different column widths.
 
+# Number formats for numbers, dates and times, per column, using Excel
+# format codes. Strings, booleans and the header row are not affected.
+Xlsxtream::Workbook.new(io, columns: [
+  {},
+  { number_format: '"$"#,##0.00' },
+  { number_format: '0.0%' },
+  { number_format: 'dd/mm/yyyy' }
+])
+
 
 # Output from Rails (will stream without buffering)
 class ReportsController < ApplicationController
@@ -145,6 +154,40 @@ gem 'xlsxtream', '< 3'
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+### Benchmarks
+
+Performance is a primary goal of this gem. Before opening a PR, please check that your changes don't make it slower or use more memory. New options should not slow down the default path. `bench/compare.rb` compares two versions of the gem:
+
+```sh
+# Compare your working tree (including uncommitted changes) against master
+bundle exec ruby bench/compare.rb
+
+# Compare two git refs
+bundle exec ruby bench/compare.rb master my-branch
+
+# Measure the cost of turning on a new option
+OPTIONS='{"my_option":true}' bundle exec ruby bench/compare.rb
+
+# Check on a large streaming file (1M rows) that performance stays fast and memory stays flat
+SIZE=large bundle exec ruby bench/compare.rb
+
+# Optionally, check an extra large streaming file (10 sheets, each with 1M rows)
+SIZE=xl bundle exec ruby bench/compare.rb
+```
+
+See the comments at the top of `bench/compare.rb` for all settings, and add a scenario to `bench/scenarios.rb` if a change affects a kind of data that isn't covered.
+
+Each line of the report is one scenario (strings, shared strings, numbers, dates, mixed and auto-formatted values), written as worksheet XML only (`xml`) and as a zipped workbook (`xlsx`), with rows either built while writing (`stream`) or written from an array (`memory`).
+
+The columns in each line compare the two versions:
+- time spent in xlsxtream
+- the change between them
+- the noise across rounds
+- objects allocated per row
+- resident memory.
+
+Allocation counts are less noisy than times; timing changes smaller than ~5% can probably be ignored as noise.
 
 ## Contributing
 

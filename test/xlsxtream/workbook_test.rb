@@ -389,6 +389,44 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_number_format_column_option
+      iow_spy = io_wrapper_spy
+      columns = [{}, { :number_format => '"$"#,##0.00' }, { :number_format => 'dd/mm/yyyy' }]
+      Workbook.open(iow_spy, :columns => columns) do |wb|
+        wb.write_worksheet do |ws|
+          ws << ['a', 1.5, Date.new(1900, 1, 1)]
+        end
+        wb.write_worksheet(:columns => [{ :number_format => 'dd/mm/yyyy' }]) do |ws|
+          ws << [Date.new(1900, 1, 1)]
+        end
+      end
+
+      assert_includes iow_spy['xl/worksheets/sheet1.xml'],
+        '<row r="1"><c r="A1" t="inlineStr"><is><t>a</t></is></c><c r="B1" s="6" t="n"><v>1.5</v></c><c r="C1" s="7"><v>2.0</v></c></row>'
+      # The same format on another sheet reuses its style
+      assert_includes iow_spy['xl/worksheets/sheet2.xml'], '<row r="1"><c r="A1" s="7"><v>2.0</v></c></row>'
+
+      styles = iow_spy['xl/styles.xml']
+      assert_includes styles,
+        '<numFmts count="4">' \
+          '<numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/>' \
+          '<numFmt numFmtId="165" formatCode="yyyy\\-mm\\-dd hh:mm:ss"/>' \
+          '<numFmt numFmtId="166" formatCode="&quot;$&quot;#,##0.00"/>' \
+          '<numFmt numFmtId="167" formatCode="dd/mm/yyyy"/>' \
+        '</numFmts>'
+      assert_includes styles, '<cellXfs count="8">'
+      assert_includes styles,
+        '<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
+        '<xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
+        '</cellXfs>'
+    end
+
+    def test_number_format_keeps_spaces_in_format_code
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :columns => [{ :number_format => '0.00 "AUD" ' }]) { |wb| wb.write_worksheet }
+      assert_includes iow_spy['xl/styles.xml'], '<numFmt numFmtId="166" formatCode="0.00 &quot;AUD&quot; "/>'
+    end
+
     def test_styles_content
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy) {}

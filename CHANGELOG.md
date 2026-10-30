@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- New `:number_format` column option, to format numbers, dates and times in a column using an Excel format code (#41)
+
 ## 3.2.0 (2025-01-08)
 
 - New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text

@@ -159,6 +159,52 @@ module Xlsxtream
     end
 
     # =========================================================================
+    # Column styles (custom number formats)
+    # =========================================================================
+
+    def test_column_style_on_numbers
+      row = Row.new([1, 2.5, 3], 1, :column_styles => [nil, ' s="6"', ' s="7"'])
+      expected = '<row r="1"><c r="A1" t="n"><v>1</v></c><c r="B1" s="6" t="n"><v>2.5</v></c><c r="C1" s="7" t="n"><v>3</v></c></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    def test_column_style_replaces_date_and_time_styles
+      row = Row.new([Date.new(1900, 1, 1), Time.utc(1900, 1, 1, 12)], 1, :column_styles => [' s="6"', ' s="6"'])
+      expected = '<row r="1"><c r="A1" s="6"><v>2.0</v></c><c r="B1" s="6"><v>2.5</v></c></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    def test_column_style_on_auto_formatted_text
+      row = Row.new(['1.5'], 1, :auto_format => true, :column_styles => [' s="6"'])
+      expected = '<row r="1"><c r="A1" s="6" t="n"><v>1.5</v></c></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    def test_column_style_ignored_for_strings_and_booleans
+      row = Row.new(['foo', true], 1, :column_styles => [' s="6"', ' s="6"'])
+      expected = '<row r="1"><c r="A1" t="inlineStr"><is><t>foo</t></is></c><c r="B1" t="b"><v>1</v></c></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    def test_column_style_beyond_styled_columns
+      row = Row.new([1, 2], 1, :column_styles => [' s="6"'])
+      expected = '<row r="1"><c r="A1" s="6" t="n"><v>1</v></c><c r="B1" t="n"><v>2</v></c></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    def test_column_style_ignored_for_header_row
+      row = Row.new([1], 1, :column_styles => [' s="6"'], is_header: true)
+      expected = '<row r="1"><c r="A1" s="3" t="n"><v>1</v></c></row>'
+      actual = row.to_xml
+      assert_equal expected, actual
+    end
+
+    # =========================================================================
     # Header rows
     # =========================================================================
 

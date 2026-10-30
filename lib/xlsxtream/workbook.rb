@@ -17,6 +17,12 @@ module Xlsxtream
       'decorative' => 5
     }.freeze
 
+    # Custom number formats are numbered after the built-in ones (below 164)
+    # and the two date formats in write_styles, and their cell styles after
+    # the six fixed ones. Each format string is only added once.
+    FIRST_NUMBER_FORMAT_ID = 166
+    FIRST_NUMBER_FORMAT_STYLE = 6
+
     class << self
 
       def open(output, options = {})
@@ -39,6 +45,9 @@ module Xlsxtream
       @options = options
       @sst = SharedStringTable.new
       @worksheets = []
+      # Created on first use, so workbooks without number formats allocate
+      # nothing extra
+      @number_formats = nil
     end
 
     def add_worksheet(*args, &block)
@@ -89,16 +98,25 @@ module Xlsxtream
       columns = options.fetch(:columns, @options[:columns])
       has_header_row = options.fetch(:has_header_row, @options[:has_header_row])
       sst = use_sst ? @sst : nil
+      if columns && Array(columns).any? { |column| column[:number_format] }
+        column_styles = Array(columns).map { |column| number_format_style(column[:number_format]) if column[:number_format] }
+      end
 
       sheet_id = @worksheets.size + 1
       name = name || options[:name] || "Sheet#{sheet_id}"
 
       @writer.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row)
+      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row, :column_styles => column_styles)
       @worksheets << worksheet
 
       worksheet
+    end
+
+    def number_format_style(number_format)
+      @number_formats ||= {}
+      index = @number_formats[number_format] ||= @number_formats.size
+      %Q{ s="#{FIRST_NUMBER_FORMAT_STYLE + index}"}
     end
 
     def write_root_rels
@@ -138,13 +156,28 @@ module Xlsxtream
         "Invalid font family #{font_family}, must be one of "\
         + FONT_FAMILY_IDS.keys.map(&:inspect).join(', ')
 
+      num_fmts_count = '2'
+      cell_xfs_count = '6'
+      custom_num_fmts = custom_xfs = ''
+      if @number_formats
+        num_fmts_count = (2 + @number_formats.size).to_s
+        cell_xfs_count = (FIRST_NUMBER_FORMAT_STYLE + @number_formats.size).to_s
+        custom_num_fmts = String.new
+        custom_xfs = String.new
+        @number_formats.each_key.with_index(FIRST_NUMBER_FORMAT_ID) do |number_format, id|
+          custom_num_fmts << %Q{<numFmt numFmtId="#{id}" formatCode="#{XML.escape_attr number_format.to_s}"/>}
+          custom_xfs << %Q{<xf numFmtId="#{id}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>}
+        end
+      end
+
       @writer.add_file "xl/styles.xml"
       @writer << XML.header
       @writer << XML.strip(<<-XML)
         <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-          <numFmts count="2">
+          <numFmts count="#{num_fmts_count}">
             <numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/>
             <numFmt numFmtId="165" formatCode="yyyy\\-mm\\-dd hh:mm:ss"/>
+            #{custom_num_fmts}
           </numFmts>
           <fonts count="2">
             <font>
@@ -173,7 +206,7 @@ module Xlsxtream
           <cellStyleXfs count="1">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
           </cellStyleXfs>
-          <cellXfs count="6">
+          <cellXfs count="#{cell_xfs_count}">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
             <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
             <xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
@@ -186,6 +219,7 @@ module Xlsxtream
             <xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
               <alignment horizontal="center" vertical="center"/>
             </xf>
+            #{custom_xfs}
           </cellXfs>
           <cellStyles count="1">
             <cellStyle name="Normal" xfId="0" builtinId="0"/>

@@ -12,6 +12,10 @@ module Xlsxtream
     # +width_pixels+:: Exact with of column in pixels. Specify as a Float.
     #                  Overrides +width_chars+ if that is also provided.
     #
+    # +number_format+:: Excel number format code for numbers, dates and times
+    #                   in the column, e.g. '"$"#,##0.00' or 'dd/mm/yyyy'.
+    #                   Handled by the Workbook, not written to <cols>.
+    #
     def initialize(column_options_array)
       @columns = column_options_array
     end
