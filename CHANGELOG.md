@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- New `:auto_filter` worksheet and workbook option, to add filter buttons to the columns of the written rows
+
 ## 3.2.0 (2025-01-08)
 
 - New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text

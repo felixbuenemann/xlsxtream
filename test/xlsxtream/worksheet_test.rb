@@ -107,6 +107,41 @@ module Xlsxtream
       assert_equal expected, io.string
     end
 
+    def test_auto_filter
+      io = StringIO.new
+      ws = Worksheet.new(io, :auto_filter => true)
+      ws << ['a', 'b']
+      ws << ['c', 'd', 'e']
+      ws << ['f']
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' \
+          '<row r="1"><c r="A1" t="inlineStr"><is><t>a</t></is></c><c r="B1" t="inlineStr"><is><t>b</t></is></c></row>' \
+          '<row r="2"><c r="A2" t="inlineStr"><is><t>c</t></is></c><c r="B2" t="inlineStr"><is><t>d</t></is></c><c r="C2" t="inlineStr"><is><t>e</t></is></c></row>' \
+          '<row r="3"><c r="A3" t="inlineStr"><is><t>f</t></is></c></row>' \
+        '</sheetData><autoFilter ref="A1:C3"/></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_auto_filter_without_rows_is_omitted
+      io = StringIO.new
+      ws = Worksheet.new(io, :auto_filter => true)
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData></sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_auto_filter_beyond_column_z
+      io = StringIO.new
+      ws = Worksheet.new(io, :auto_filter => true)
+      ws << Array.new(28, 1)
+      ws.close
+      assert_includes io.string, '<autoFilter ref="A1:AB1"/>'
+    end
+
     def test_respond_to_id
       ws = Worksheet.new(StringIO.new, id: 1)
       assert_equal 1, ws.id

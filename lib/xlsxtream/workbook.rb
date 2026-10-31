@@ -88,6 +88,7 @@ module Xlsxtream
       auto_format = options.fetch(:auto_format, @options[:auto_format])
       columns = options.fetch(:columns, @options[:columns])
       has_header_row = options.fetch(:has_header_row, @options[:has_header_row])
+      auto_filter = options.fetch(:auto_filter, @options[:auto_filter])
       sst = use_sst ? @sst : nil
 
       sheet_id = @worksheets.size + 1
@@ -95,7 +96,7 @@ module Xlsxtream
 
       @writer.add_file "xl/worksheets/sheet#{sheet_id}.xml"
 
-      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row)
+      worksheet = Worksheet.new(@writer, :id => sheet_id, :name => name, :sst => sst, :auto_format => auto_format, :columns => columns, :has_header_row => has_header_row, :auto_filter => auto_filter)
       @worksheets << worksheet
 
       worksheet
@@ -123,10 +124,25 @@ module Xlsxtream
       @worksheets.each do |worksheet|
         @writer << %'<sheet name="#{XML.escape_attr worksheet.name}" sheetId="#{worksheet.id}" r:id="#{rid.next!}"/>'
       end
-      @writer << XML.strip(<<-XML)
-          </sheets>
-        </workbook>
-      XML
+      @writer << '</sheets>'
+      write_defined_names
+      @writer << '</workbook>'
+    end
+
+    # LibreOffice ignores an <autoFilter> unless the hidden _FilterDatabase
+    # name for the sheet covers the same range (Excel writes it as well).
+    def write_defined_names
+      return unless @worksheets.any?(&:auto_filter_ref)
+
+      names = @worksheets.each_with_index.map do |worksheet, index|
+        next unless (ref = worksheet.auto_filter_ref)
+
+        absolute_ref = ref.gsub(/([A-Z]+)([0-9]+)/, '$\\1$\\2')
+        sheet_name = worksheet.name.gsub("'", "''")
+        %'<definedName name="_xlnm._FilterDatabase" localSheetId="#{index}" hidden="1">#{XML.escape_attr "'#{sheet_name}'!#{absolute_ref}"}</definedName>'
+      end.compact
+
+      @writer << "<definedNames>#{names.join}</definedNames>"
     end
 
     def write_styles

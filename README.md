@@ -111,6 +111,14 @@ Xlsxtream::Workbook.new(io, columns: [
 # The :columns option can also be given to write_worksheet, so it's
 # possible to have multiple worksheets with different column widths.
 
+# Adding filter buttons to the columns of the written rows (the first row
+# is used as the filter header). Also available as a workbook option.
+Xlsxtream::Workbook.open(io) do |xlsx|
+  xlsx.write_worksheet 'Sheet1', auto_filter: true do |sheet|
+    # ...
+  end
+end
+
 
 # Output from Rails (will stream without buffering)
 class ReportsController < ApplicationController
