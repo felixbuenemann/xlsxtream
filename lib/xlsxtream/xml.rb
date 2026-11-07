@@ -25,6 +25,8 @@ module Xlsxtream
 
     # ST_Xstring escaping
     ESCAPE_CHAR = lambda { |c| '_x%04X_' % c.ord }
+    # A non-main Ractor can only read this constant once the lambda is shareable
+    Ractor.make_shareable(ESCAPE_CHAR) if defined?(Ractor)
 
     class << self
 

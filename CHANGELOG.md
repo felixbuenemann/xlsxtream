@@ -3,6 +3,7 @@
 ## 3.2.0 (2025-01-08)
 
 - New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text
+- Allow writing workbooks from a non-main Ractor
 
 ## 3.1.0 (2024-12-28)
 
