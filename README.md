@@ -96,6 +96,16 @@ Xlsxtream::Workbook.new(io, font: {
   family: 'Roman' # Swiss, Modern, Script, Decorative
 })
 
+# Dates and times are written as ISO-8601 (yyyy-mm-dd and yyyy-mm-dd hh:mm:ss)
+# by default, so the file looks the same on every machine. Pass :locale to use
+# Excel's built-in formats 14 and 22 instead, which render according to the
+# regional settings of whoever opens the file - or pass any Excel number format code.
+Xlsxtream::Workbook.new(io, date_format: :locale, datetime_format: :locale)
+Xlsxtream::Workbook.new(io, date_format: 'dd.mm.yyyy', datetime_format: 'dd.mm.yyyy hh:mm')
+# A [$-xxx] locale tag pins the language of month and day names, regardless
+# of the viewer's settings - this shows "25. März 2026" everywhere
+Xlsxtream::Workbook.new(io, date_format: '[$-407]d. mmmm yyyy')
+
 # Treat the first output row as a header, using bold and centred text
 Xlsxtream::Workbook.new(io, has_header_row: true)
 

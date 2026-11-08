@@ -450,6 +450,47 @@ module Xlsxtream
       assert_equal expected, actual
     end
 
+    def test_locale_date_formats
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => :locale, :datetime_format => :locale) {}
+      styles = iow_spy['xl/styles.xml']
+      refute_includes styles, '<numFmts'
+      assert_equal %w[0 14 22 0 14 22], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
+    end
+
+    def test_custom_date_formats
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => 'dd.mm.yyyy', :datetime_format => 'dd.mm.yyyy "at" hh:mm') {}
+      styles = iow_spy['xl/styles.xml']
+      expected = \
+        '<numFmts count="2">' \
+          '<numFmt numFmtId="164" formatCode="dd.mm.yyyy"/>' \
+          '<numFmt numFmtId="165" formatCode="dd.mm.yyyy &quot;at&quot; hh:mm"/>' \
+        '</numFmts>'
+      assert_includes styles, expected
+      assert_equal %w[0 164 165 0 164 165], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
+    end
+
+    def test_custom_date_format_with_locale_tag
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => '[$-407]d. mmmm yyyy') {}
+      assert_includes iow_spy['xl/styles.xml'], '<numFmt numFmtId="164" formatCode="[$-407]d. mmmm yyyy"/>'
+    end
+
+    def test_mixed_locale_and_custom_date_formats
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => :locale, :datetime_format => 'dd.mm.yyyy hh:mm') {}
+      styles = iow_spy['xl/styles.xml']
+      assert_includes styles, '<numFmts count="1"><numFmt numFmtId="164" formatCode="dd.mm.yyyy hh:mm"/></numFmts>'
+      assert_equal %w[0 14 164 0 14 164], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
+    end
+
+    def test_invalid_date_format
+      assert_raises Xlsxtream::Error do
+        Workbook.open(io_wrapper_spy, :date_format => :klingon) {}
+      end
+    end
+
     def test_custom_font_size
       iow_spy = io_wrapper_spy
       font_options = { :size => 23 }
