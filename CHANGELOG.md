@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- New `:date_format` and `:datetime_format` workbook options. Pass `:locale` to use Excel's built-in, locale-dependent date formats, or a custom number format code. The default is still ISO-8601 (#65)
+
 ## 3.2.0 (2025-01-08)
 
 - New `:has_header_row` worksheet and workbook option, causing first row of spreadsheet to use bold, centred text
