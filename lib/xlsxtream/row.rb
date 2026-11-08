@@ -46,10 +46,16 @@ module Xlsxtream
           value = auto_format(value)
         end
 
+        # nil and String go first since they are the most common, and every `when`
+        # is a `===` call - which gets slower with ActiveSupport loaded
         case value
+        when nil
+          # no xml output for nil
+        when String
+          append_string(xml, cid, value, normal_style)
         when Numeric
           xml << %Q{<c r="#{cid}"#{normal_style} t="n"><v>#{value}</v></c>}
-        when TrueClass, FalseClass
+        when true, false
           xml << %Q{<c r="#{cid}"#{normal_style} t="b"><v>#{value ? 1 : 0}</v></c>}
         when Time
           xml << %Q{<c r="#{cid}"#{time_style}><v>#{time_to_oa_date(value)}</v></c>}
@@ -58,17 +64,7 @@ module Xlsxtream
         when Date
           xml << %Q{<c r="#{cid}"#{date_style}><v>#{date_to_oa_date(value)}</v></c>}
         else
-          value = value.to_s
-
-          unless value.empty? # no xml output for for empty strings
-            value = value.encode(ENCODING) if value.encoding != ENCODING
-
-            if @sst
-              xml << %Q{<c r="#{cid}"#{normal_style} t="s"><v>#{@sst[value]}</v></c>}
-            else
-              xml << %Q{<c r="#{cid}"#{normal_style} t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
-            end
-          end
+          append_string(xml, cid, value.to_s, normal_style)
         end
       end
 
@@ -76,6 +72,17 @@ module Xlsxtream
     end
 
     private
+
+    def append_string(xml, cid, value, style)
+      return if value.empty? # no xml output for empty strings
+
+      value = value.encode(ENCODING) if value.encoding != ENCODING
+      if @sst
+        xml << %Q{<c r="#{cid}"#{style} t="s"><v>#{@sst[value]}</v></c>}
+      else
+        xml << %Q{<c r="#{cid}"#{style} t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
+      end
+    end
 
     # Detects and casts numbers, date, time in text
     def auto_format(value)
