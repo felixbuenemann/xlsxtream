@@ -17,6 +17,15 @@ module Xlsxtream
       'decorative' => 5
     }.freeze
 
+    DEFAULT_DATE_FORMAT = 'yyyy\\-mm\\-dd'
+    DEFAULT_DATETIME_FORMAT = 'yyyy\\-mm\\-dd hh:mm:ss'
+
+    # Built-in formats which Excel renders using the locale of the viewing machine
+    LOCALE_DATE_FORMAT_ID = 14
+    LOCALE_DATETIME_FORMAT_ID = 22
+
+    FIRST_CUSTOM_FORMAT_ID = 164
+
     class << self
 
       def open(output, options = {})
@@ -35,8 +44,11 @@ module Xlsxtream
     end
 
     def initialize(output, options = {})
-      @writer = ZipKitWriter.with_output_to(output)
       @options = options
+      @custom_num_fmts = {}
+      @date_format_id = resolve_num_fmt(:date_format, DEFAULT_DATE_FORMAT, LOCALE_DATE_FORMAT_ID)
+      @datetime_format_id = resolve_num_fmt(:datetime_format, DEFAULT_DATETIME_FORMAT, LOCALE_DATETIME_FORMAT_ID)
+      @writer = ZipKitWriter.with_output_to(output)
       @sst = SharedStringTable.new
       @worksheets = []
     end
@@ -78,6 +90,19 @@ module Xlsxtream
     end
 
     private
+
+    def resolve_num_fmt(option_name, default_format_code, locale_format_id)
+      format = @options.fetch(option_name, nil) || default_format_code
+      case format
+      when :locale
+        locale_format_id
+      when String
+        @custom_num_fmts[format] ||= FIRST_CUSTOM_FORMAT_ID + @custom_num_fmts.size
+      else
+        fail Error, "Invalid #{option_name} #{format.inspect}, must be :locale or a format code String"
+      end
+    end
+
     def build_worksheet(name = nil, options = {})
       if name.is_a? Hash and options.empty?
         options = name
@@ -142,6 +167,15 @@ module Xlsxtream
       @writer << XML.header
       @writer << XML.strip(<<-XML)
         <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+      XML
+      unless @custom_num_fmts.empty?
+        @writer << %'<numFmts count="#{@custom_num_fmts.size}">'
+        @custom_num_fmts.each do |format_code, id|
+          @writer << %'<numFmt numFmtId="#{id}" formatCode="#{XML.escape_attr format_code}"/>'
+        end
+        @writer << '</numFmts>'
+      end
+      @writer << XML.strip(<<-XML)
           <fonts count="2">
             <font>
               <sz val="#{XML.escape_attr font_size}"/>
@@ -171,15 +205,15 @@ module Xlsxtream
           </cellStyleXfs>
           <cellXfs count="6">
             <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-            <xf numFmtId="14" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
-            <xf numFmtId="22" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+            <xf numFmtId="#{@date_format_id}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+            <xf numFmtId="#{@datetime_format_id}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
             <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1">
               <alignment horizontal="center" vertical="center"/>
             </xf>
-            <xf numFmtId="14" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
+            <xf numFmtId="#{@date_format_id}" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
               <alignment horizontal="center" vertical="center"/>
             </xf>
-            <xf numFmtId="22" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
+            <xf numFmtId="#{@datetime_format_id}" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">
               <alignment horizontal="center" vertical="center"/>
             </xf>
           </cellXfs>

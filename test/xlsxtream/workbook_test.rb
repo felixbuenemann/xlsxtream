@@ -395,6 +395,10 @@ module Xlsxtream
       expected = \
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
         '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+          '<numFmts count="2">' \
+            '<numFmt numFmtId="164" formatCode="yyyy\\-mm\\-dd"/>' \
+            '<numFmt numFmtId="165" formatCode="yyyy\\-mm\\-dd hh:mm:ss"/>' \
+          '</numFmts>' \
           '<fonts count="2">' \
             '<font>' \
               '<sz val="12"/>' \
@@ -424,15 +428,15 @@ module Xlsxtream
           '</cellStyleXfs>' \
           '<cellXfs count="6">' \
             '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' \
-            '<xf numFmtId="14" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
-            '<xf numFmtId="22" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
+            '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
+            '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' \
             '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1">' \
               '<alignment horizontal="center" vertical="center"/>' \
             '</xf>' \
-            '<xf numFmtId="14" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
+            '<xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
               '<alignment horizontal="center" vertical="center"/>' \
             '</xf>' \
-            '<xf numFmtId="22" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
+            '<xf numFmtId="165" fontId="1" fillId="0" borderId="0" xfId="0" applyAlignment="1" applyNumberFormat="1">' \
               '<alignment horizontal="center" vertical="center"/>' \
             '</xf>' \
           '</cellXfs>' \
@@ -444,6 +448,41 @@ module Xlsxtream
         '</styleSheet>'
       actual = iow_spy['xl/styles.xml']
       assert_equal expected, actual
+    end
+
+    def test_locale_date_formats
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => :locale, :datetime_format => :locale) {}
+      styles = iow_spy['xl/styles.xml']
+      refute_includes styles, '<numFmts'
+      assert_equal %w[0 14 22 0 14 22], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
+    end
+
+    def test_custom_date_formats
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => 'dd.mm.yyyy', :datetime_format => 'dd.mm.yyyy "at" hh:mm') {}
+      styles = iow_spy['xl/styles.xml']
+      expected = \
+        '<numFmts count="2">' \
+          '<numFmt numFmtId="164" formatCode="dd.mm.yyyy"/>' \
+          '<numFmt numFmtId="165" formatCode="dd.mm.yyyy &quot;at&quot; hh:mm"/>' \
+        '</numFmts>'
+      assert_includes styles, expected
+      assert_equal %w[0 164 165 0 164 165], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
+    end
+
+    def test_mixed_locale_and_custom_date_formats
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => :locale, :datetime_format => 'dd.mm.yyyy hh:mm') {}
+      styles = iow_spy['xl/styles.xml']
+      assert_includes styles, '<numFmts count="1"><numFmt numFmtId="164" formatCode="dd.mm.yyyy hh:mm"/></numFmts>'
+      assert_equal %w[0 14 164 0 14 164], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
+    end
+
+    def test_invalid_date_format
+      assert_raises Xlsxtream::Error do
+        Workbook.open(io_wrapper_spy, :date_format => :klingon) {}
+      end
     end
 
     def test_custom_font_size
