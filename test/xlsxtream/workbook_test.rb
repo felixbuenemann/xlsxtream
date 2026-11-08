@@ -471,6 +471,12 @@ module Xlsxtream
       assert_equal %w[0 164 165 0 164 165], styles.scan(/<xf numFmtId="(\d+)"[^>]* xfId="0"/).flatten
     end
 
+    def test_custom_date_format_with_locale_tag
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, :date_format => '[$-407]d. mmmm yyyy') {}
+      assert_includes iow_spy['xl/styles.xml'], '<numFmt numFmtId="164" formatCode="[$-407]d. mmmm yyyy"/>'
+    end
+
     def test_mixed_locale_and_custom_date_formats
       iow_spy = io_wrapper_spy
       Workbook.open(iow_spy, :date_format => :locale, :datetime_format => 'dd.mm.yyyy hh:mm') {}
