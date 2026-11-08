@@ -23,9 +23,6 @@ module Xlsxtream
     # Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
     INVALID_XML10_CHARS = /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/
 
-    # ST_Xstring escaping
-    ESCAPE_CHAR = lambda { |c| '_x%04X_' % c.ord }
-
     class << self
 
       def header
@@ -44,7 +41,12 @@ module Xlsxtream
         string
           .gsub(UNSAFE_VALUE_CHARS, XML_ESCAPES)
           .gsub(HEX_ESCAPE_REGEXP, XML_ESCAPE_UNDERSCORE)
-          .gsub(INVALID_XML10_CHARS, &ESCAPE_CHAR)
+          .gsub(INVALID_XML10_CHARS) { |c| escape_char(c) }
+      end
+
+      # ST_Xstring escaping
+      def escape_char(c)
+        '_x%04X_' % c.ord
       end
 
     end
