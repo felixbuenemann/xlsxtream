@@ -39,33 +39,34 @@ module Xlsxtream
       end
 
       @row.each do |value|
-        cid = "#{column}#{@rownum}"
-        column.next!
-
         if @auto_format && value.is_a?(String)
           value = auto_format(value)
         end
 
         # nil and String go first since they are the most common, and every `when`
-        # is a `===` call - which gets slower with ActiveSupport loaded
+        # is a `===` call - which gets slower with ActiveSupport loaded.
+        # The cell reference is interpolated in place rather than built up front,
+        # so skipped cells (nil, empty strings) allocate nothing.
         case value
         when nil
           # no xml output for nil
         when String
-          append_string(xml, cid, value, normal_style)
+          append_string(xml, column, value, normal_style)
         when Numeric
-          xml << %Q{<c r="#{cid}"#{normal_style} t="n"><v>#{value}</v></c>}
+          xml << %Q{<c r="#{column}#{@rownum}"#{normal_style} t="n"><v>#{value}</v></c>}
         when true, false
-          xml << %Q{<c r="#{cid}"#{normal_style} t="b"><v>#{value ? 1 : 0}</v></c>}
+          xml << %Q{<c r="#{column}#{@rownum}"#{normal_style} t="b"><v>#{value ? 1 : 0}</v></c>}
         when Time
-          xml << %Q{<c r="#{cid}"#{time_style}><v>#{time_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{column}#{@rownum}"#{time_style}><v>#{time_to_oa_date(value)}</v></c>}
         when DateTime
-          xml << %Q{<c r="#{cid}"#{time_style}><v>#{datetime_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{column}#{@rownum}"#{time_style}><v>#{datetime_to_oa_date(value)}</v></c>}
         when Date
-          xml << %Q{<c r="#{cid}"#{date_style}><v>#{date_to_oa_date(value)}</v></c>}
+          xml << %Q{<c r="#{column}#{@rownum}"#{date_style}><v>#{date_to_oa_date(value)}</v></c>}
         else
-          append_string(xml, cid, value.to_s, normal_style)
+          append_string(xml, column, value.to_s, normal_style)
         end
+
+        column.next!
       end
 
       xml << '</row>'
@@ -73,14 +74,14 @@ module Xlsxtream
 
     private
 
-    def append_string(xml, cid, value, style)
+    def append_string(xml, column, value, style)
       return if value.empty? # no xml output for empty strings
 
       value = value.encode(ENCODING) if value.encoding != ENCODING
       if @sst
-        xml << %Q{<c r="#{cid}"#{style} t="s"><v>#{@sst[value]}</v></c>}
+        xml << %Q{<c r="#{column}#{@rownum}"#{style} t="s"><v>#{@sst[value]}</v></c>}
       else
-        xml << %Q{<c r="#{cid}"#{style} t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
+        xml << %Q{<c r="#{column}#{@rownum}"#{style} t="inlineStr"><is><t>#{XML.escape_value(value)}</t></is></c>}
       end
     end
 
