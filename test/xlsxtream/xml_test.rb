@@ -43,6 +43,22 @@ module Xlsxtream
       assert_equal expected, XML.escape_value(safe_value)
     end
 
+    def test_escape_value_char_by_char
+      escapes = { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }
+      valid = [0x09, 0x0A, 0x0D, 0x20..0xD7FF, 0xE000..0xFFFD, 0x10000..0x10FFFF]
+      boundaries = [0xD7FF, 0xE000, 0xFFFD, 0xFFFE, 0xFFFF, 0x10000, 0x10FFFF]
+
+      ((0x00..0x7F).to_a + boundaries).each do |code|
+        char = code.chr(Encoding::UTF_8)
+        expected =
+          if escapes.key?(char) then escapes[char]
+          elsif valid.any? { |v| v === code } then char
+          else format('_x%04X_', code)
+          end
+        assert_equal "a#{expected}b", XML.escape_value("a#{char}b"), "U+%04X" % code
+      end
+    end
+
     def test_encode_underscores_using_x005f
       unsafe_value = "_xDcc2_"
       safe_value = "_x005f_xDcc2_"
