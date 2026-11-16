@@ -215,6 +215,43 @@ module Xlsxtream
       end
     end
 
+    def test_workbook_with_auto_filter_defines_filter_database
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy) do |wb|
+        wb.write_worksheet('Plain') { |ws| ws << ['a'] }
+        wb.write_worksheet("Bob's <data>", auto_filter: true) do |ws|
+          ws << ['a', 'b']
+          ws << ['c', 'd']
+        end
+      end
+
+      expected =
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '\
+                  'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' \
+          '<workbookPr date1904="false"/>' \
+          '<sheets>' \
+            '<sheet name="Plain" sheetId="1" r:id="rId1"/>' \
+            '<sheet name="Bob\'s &lt;data&gt;" sheetId="2" r:id="rId2"/>' \
+          '</sheets>' \
+          '<definedNames>' \
+            '<definedName name="_xlnm._FilterDatabase" localSheetId="1" hidden="1">' \
+              '\'Bob\'\'s &lt;data&gt;\'!$A$1:$B$2' \
+            '</definedName>' \
+          '</definedNames>' \
+        '</workbook>'
+      assert_equal expected, iow_spy['xl/workbook.xml']
+    end
+
+    def test_workbook_auto_filter_option_applies_to_all_worksheets
+      iow_spy = io_wrapper_spy
+      Workbook.open(iow_spy, auto_filter: true) do |wb|
+        wb.write_worksheet { |ws| ws << ['a'] }
+      end
+      assert_includes iow_spy['xl/worksheets/sheet1.xml'], '<autoFilter ref="A1:A1"/>'
+      assert_includes iow_spy['xl/workbook.xml'], '>\'Sheet1\'!$A$1:$A$1</definedName>'
+    end
+
     def test_root_relations
       iow_spy = io_wrapper_spy
       Workbook.new(iow_spy).close

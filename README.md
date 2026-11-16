@@ -129,6 +129,14 @@ Xlsxtream::Workbook.open(io) do |xlsx|
   end
 end
 
+# Adding filter buttons to the columns of the written rows (the first row
+# is used as the filter header). Also available as a workbook option.
+Xlsxtream::Workbook.open(io) do |xlsx|
+  xlsx.write_worksheet 'Sheet1', auto_filter: true do |sheet|
+    # ...
+  end
+end
+
 
 # Output from Rails (will stream without buffering)
 class ReportsController < ApplicationController
