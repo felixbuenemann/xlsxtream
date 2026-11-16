@@ -107,6 +107,55 @@ module Xlsxtream
       assert_equal expected, io.string
     end
 
+    def test_freeze_rows
+      io = StringIO.new
+      ws = Worksheet.new(io, :freeze_rows => 1)
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+          '<sheetViews><sheetView workbookViewId="0">' \
+            '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' \
+          '</sheetView></sheetViews>' \
+        '<sheetData></sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_freeze_columns
+      io = StringIO.new
+      ws = Worksheet.new(io, :freeze_columns => 2)
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+          '<sheetViews><sheetView workbookViewId="0">' \
+            '<pane xSplit="2" topLeftCell="C1" activePane="topRight" state="frozen"/>' \
+          '</sheetView></sheetViews>' \
+        '<sheetData></sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_freeze_rows_and_columns
+      io = StringIO.new
+      ws = Worksheet.new(io, :freeze_rows => 2, :freeze_columns => 1)
+      ws.close
+      expected = \
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'"\r\n" \
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' \
+          '<sheetViews><sheetView workbookViewId="0">' \
+            '<pane xSplit="1" ySplit="2" topLeftCell="B3" activePane="bottomRight" state="frozen"/>' \
+          '</sheetView></sheetViews>' \
+        '<sheetData></sheetData></worksheet>'
+      assert_equal expected, io.string
+    end
+
+    def test_freeze_panes_are_written_before_columns
+      io = StringIO.new
+      ws = Worksheet.new(io, :freeze_rows => 1, :columns => [{ :width_pixels => 42 }])
+      ws.close
+      assert_match %r{<sheetViews>.*</sheetViews><cols>.*</cols><sheetData>}, io.string
+    end
+
     def test_respond_to_id
       ws = Worksheet.new(StringIO.new, id: 1)
       assert_equal 1, ws.id

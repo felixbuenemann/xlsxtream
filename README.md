@@ -121,6 +121,14 @@ Xlsxtream::Workbook.new(io, columns: [
 # The :columns option can also be given to write_worksheet, so it's
 # possible to have multiple worksheets with different column widths.
 
+# Freezing the first row and/or first columns so they stay visible while
+# scrolling. Also available as a workbook option.
+Xlsxtream::Workbook.open(io) do |xlsx|
+  xlsx.write_worksheet 'Sheet1', freeze_rows: 1, freeze_columns: 2 do |sheet|
+    # ...
+  end
+end
+
 
 # Output from Rails (will stream without buffering)
 class ReportsController < ApplicationController
